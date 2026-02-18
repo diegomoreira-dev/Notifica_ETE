@@ -10,8 +10,12 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
-.seed_dados_ficticios.sql
-.script_supabase_completo- diegomoreira.pab@outlook.com.sql
+
+# Não versionar: exemplos, scripts com dados pessoais e docs locais
+exemplo_importacao_alunos.csv
+script_supabase_completo- diegomoreira.pab@outlook.com.sql
+scripts/seed_dados_ficticios.sql
+docs/
 
 # Config do Supabase (chaves reais; não commitar)
 src/js/supabase-config.js
@@ -99,11 +103,26 @@ Thumbs.db
 dist/
 build/
 
-# Uploads (se não usar Supabase Storage)
+# Uploads e pastas temporárias
 uploads/
 temp/
 gestao-usuarios/
+
 docs/
+
+# Vercel (output local do CLI)
+.vercel/
+
+# Supabase (CLI local / cache)
+.supabase/
+supabase/.temp/
+
+# Windows
+desktop.ini
+*.lnk
+
+# macOS (além do .DS_Store já listado)
+__MACOSX/
 
 
 # Backup files

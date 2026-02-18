@@ -42,15 +42,16 @@ function formatDateTime(str) {
     })
 }
 
+/** Role de exibição: só usamos app_metadata.role (admin/operador). O user.role do Supabase é sempre "authenticated". */
 function getRoleLabel(user) {
-    const role = user.app_metadata?.role || user.role
+    const role = user.app_metadata?.role
     if (role === 'admin') return 'Admin'
     if (role === 'operador') return 'Operador'
-    return role ? String(role) : '—'
+    return 'Operador'
 }
 
 function getRoleValue(user) {
-    const r = user.app_metadata?.role || user.role
+    const r = user.app_metadata?.role
     return r === 'admin' ? 'admin' : 'operador'
 }
 
@@ -107,7 +108,7 @@ async function loadUsers() {
             <tr>
                 <td>${escapeHtml(u.email || '—')}</td>
                 <td>${escapeHtml(nome)}</td>
-                <td><span class="badge ${(u.app_metadata?.role || u.role) === 'admin' ? 'badge-warning' : 'badge-info'}">${escapeHtml(getRoleLabel(u))}</span></td>
+                <td><span class="badge ${(u.app_metadata?.role) === 'admin' ? 'badge-warning' : 'badge-info'}">${escapeHtml(getRoleLabel(u))}</span></td>
                 <td>${formatDateTime(u.created_at)}</td>
                 <td>
                     <div class="flex-gap-sm">

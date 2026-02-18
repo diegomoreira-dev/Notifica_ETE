@@ -14,6 +14,11 @@ const SUPABASE_ANON_KEY = _config.anonKey || ''
 const { createClient } = supabase
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
+// Sessão: duração máxima para ambiente institucional (8h). Após isso exige novo login.
+// Opcional: em Supabase Dashboard > Auth > Settings reduza "JWT expiry" (ex.: 3600 = 1h) para reforçar.
+const SESSION_STARTED_KEY = 'notifica_ete_session_started_at'
+const MAX_SESSION_AGE_MS = (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.maxSessionAgeMs) || (8 * 60 * 60 * 1000)
+
 // ================================================
 // API GLOBAL
 // ================================================
@@ -44,6 +49,7 @@ const SupabaseAPI = {
 
         async logout() {
             try {
+                if (typeof localStorage !== 'undefined') localStorage.removeItem(SESSION_STARTED_KEY)
                 const { error } = await supabaseClient.auth.signOut()
                 if (error) throw error
                 return { error: null }
@@ -53,10 +59,26 @@ const SupabaseAPI = {
             }
         },
 
+        /** Retorna a sessão atual. Se passou do tempo máximo (ex.: 8h), faz logout e retorna null. */
         async getSession() {
             try {
                 const { data: { session }, error } = await supabaseClient.auth.getSession()
                 if (error) throw error
+                if (!session) {
+                    if (typeof localStorage !== 'undefined') localStorage.removeItem(SESSION_STARTED_KEY)
+                    return { session: null, error: null }
+                }
+                var started = typeof localStorage !== 'undefined' ? localStorage.getItem(SESSION_STARTED_KEY) : null
+                if (!started) {
+                    if (typeof localStorage !== 'undefined') localStorage.setItem(SESSION_STARTED_KEY, String(Date.now()))
+                    started = String(Date.now())
+                }
+                var startedMs = parseInt(started, 10)
+                if (isNaN(startedMs) || (Date.now() - startedMs) > MAX_SESSION_AGE_MS) {
+                    await supabaseClient.auth.signOut()
+                    if (typeof localStorage !== 'undefined') localStorage.removeItem(SESSION_STARTED_KEY)
+                    return { session: null, error: null }
+                }
                 return { session, error: null }
             } catch (error) {
                 console.error('Erro ao obter sessão:', error)

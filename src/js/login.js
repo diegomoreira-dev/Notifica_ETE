@@ -66,6 +66,7 @@ async function handleLogin(e) {
         
         console.log('✅ Login bem-sucedido!')
         console.log('Usuário:', data.user)
+        if (typeof localStorage !== 'undefined') localStorage.setItem('notifica_ete_session_started_at', String(Date.now()))
 
         const isPrimeiroLogin = data.user?.user_metadata?.primeiro_login === true
         if (isPrimeiroLogin) {

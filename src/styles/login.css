@@ -1,0 +1,169 @@
+/* ================================================
+   NOTIFICA ETE - Estilos da Página de Login
+   ================================================ */
+
+/* Background com imagem da escola */
+body {
+    background-image: url('../../assets/images/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+}
+
+/* Overlay semi-transparente sobre o background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.495);
+    backdrop-filter: blur(3px);
+    z-index: -1;
+}
+
+/* Container principal */
+.container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Card de login */
+.login-container .card {
+    max-width: 450px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Header do card de login */
+.login-container .card-header {
+    background: linear-gradient(135deg, #0A2A59 0%, #1E3A8A 100%);
+    color: white;
+    text-align: center;
+}
+
+.login-container .card-header h2 {
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.login-container .card-header p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Container de login */
+.login-container {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+/* Password input wrapper */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .form-input {
+    padding-right: 45px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.toggle-password:hover {
+    color: #0A2A59;
+}
+
+.toggle-password i {
+    font-size: 18px;
+}
+
+/* Forgot password */
+.forgot-password-container {
+    text-align: right;
+    margin-top: -0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.forgot-password-link {
+    color: #0A2A59;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.forgot-password-link:hover {
+    color: #1E3A8A;
+    text-decoration: underline;
+}
+
+/* Spinner de loading */
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Notificações toast */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+    font-weight: 500;
+}
+
+.notification-success {
+    background: #10b981;
+    color: white;
+}
+
+.notification-error {
+    background: #ef4444;
+    color: white;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

@@ -1,0 +1,871 @@
+// ================================================
+// NOTIFICA ETE - Gestão de Alunos
+// ================================================
+
+// Usar API global
+const { auth, database, utils } = SupabaseAPI
+
+// Estado global
+let alunos = []
+let alunosFiltrados = []
+let editingId = null
+
+// Escape para atributo e conteúdo HTML (descrição no tooltip)
+function escapeDescricaoAttr(str) {
+    if (!str) return ''
+    return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+function escapeHtml(str) {
+    if (!str) return ''
+    const div = document.createElement('div')
+    div.textContent = str
+    return div.innerHTML
+}
+
+// Verificar autenticação
+async function checkAuth() {
+    const { session } = await auth.getSession()
+    if (!session) {
+        window.location.href = 'login.html'
+        return false
+    }
+    return true
+}
+
+// Carregar alunos
+async function loadAlunos() {
+    try {
+        console.log('🔄 Carregando alunos...')
+        
+        const { data, error } = await database.select('alunos', {
+            select: '*',
+            order: { column: 'nome', ascending: true }
+        })
+
+        if (error) throw error
+
+        alunos = data || []
+        alunosFiltrados = alunos
+        console.log('📊 Alunos carregados:', alunos.length)
+        
+        renderAlunos(alunosFiltrados)
+        populateTurmaFilter()
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar alunos:', error)
+        utils.showNotification('Erro ao carregar alunos: ' + error.message, 'error')
+    }
+}
+
+// Popular filtro de turmas
+function populateTurmaFilter() {
+    const turmas = [...new Set(alunos.map(a => a.turma).filter(Boolean))].sort()
+    const select = document.getElementById('turmaFilter')
+    
+    select.innerHTML = '<option value="">Todas as Turmas</option>' + 
+        turmas.map(turma => `<option value="${turma}">${turma}</option>`).join('')
+}
+
+// Renderizar tabela de alunos
+function renderAlunos(data) {
+    const tbody = document.getElementById('alunosTableBody')
+    const totalEl = document.getElementById('totalAlunosExibidos')
+
+    totalEl.textContent = data.length
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="text-center text-muted">
+                    <i class="fas fa-users" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+                    <p>Nenhum aluno encontrado</p>
+                </td>
+            </tr>
+        `
+        updateExcluirSelecionadosState()
+        return
+    }
+
+    try {
+        tbody.innerHTML = data.map(aluno => `
+            <tr>
+                <td class="td-checkbox">
+                    <input type="checkbox" class="aluno-check" data-id="${aluno.id}" aria-label="Selecionar aluno">
+                </td>
+                <td><strong>${aluno.codigo_portal || 'N/A'}</strong></td>
+                <td>${aluno.nome || 'N/A'}</td>
+                <td>${utils.formatDate(aluno.data_nascimento)}</td>
+                <td>${aluno.matricula || 'N/A'}</td>
+                <td><span class="badge badge-info">${aluno.turma || 'N/A'}</span></td>
+                <td>${aluno.responsavel || 'N/A'}</td>
+                <td>${utils.formatPhone(aluno.telefone_responsavel)}</td>
+                <td>
+                    <div class="flex-gap-sm">
+                        <button class="btn btn-sm btn-warning" onclick="verNotificacoesAluno('${aluno.id}')" title="Ver Notificações">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="editarAluno('${aluno.id}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deletarAluno('${aluno.id}')" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('')
+
+        const selectAll = document.getElementById('selectAllAlunos')
+        if (selectAll) {
+            selectAll.checked = false
+            selectAll.indeterminate = false
+        }
+        updateExcluirSelecionadosState()
+    } catch (error) {
+        console.error('Erro ao renderizar alunos:', error)
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center text-muted">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+                    <p>Erro ao carregar alunos</p>
+                </td>
+            </tr>
+        `
+    }
+}
+
+// Aplicar filtros
+function applyFilters() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase()
+    const turmaFiltro = document.getElementById('turmaFilter').value
+
+    alunosFiltrados = alunos.filter(aluno => {
+        const matchSearch = !searchTerm || 
+            aluno.nome.toLowerCase().includes(searchTerm) ||
+            aluno.matricula.toLowerCase().includes(searchTerm) ||
+            aluno.codigo_portal.includes(searchTerm)
+
+        const matchTurma = !turmaFiltro || aluno.turma === turmaFiltro
+
+        return matchSearch && matchTurma
+    })
+
+    renderAlunos(alunosFiltrados)
+}
+
+// Abrir modal para novo aluno
+window.openModalNovo = function() {
+    editingId = null
+    document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Novo Aluno'
+    document.getElementById('alunoForm').reset()
+    document.getElementById('alunoId').value = ''
+    gerarCodigoPortal()
+    document.getElementById('alunoModal').classList.add('active')
+}
+
+// Gerar código portal
+window.gerarCodigoPortal = function() {
+    const codigo = Math.floor(100000 + Math.random() * 900000).toString()
+    document.getElementById('alunoCodigoPortal').value = codigo
+}
+
+// Editar aluno
+window.editarAluno = async function(id) {
+    try {
+        const aluno = alunos.find(a => a.id === id)
+        if (!aluno) {
+            utils.showNotification('Aluno não encontrado', 'error')
+        return
+    }
+    
+        editingId = id
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Aluno'
+        document.getElementById('alunoId').value = aluno.id
+        document.getElementById('alunoNome').value = aluno.nome
+        document.getElementById('alunoDataNascimento').value = aluno.data_nascimento
+        document.getElementById('alunoMatricula').value = aluno.matricula
+        document.getElementById('alunoTurma').value = aluno.turma
+        document.getElementById('alunoResponsavel').value = aluno.responsavel
+        document.getElementById('alunoTelefone').value = aluno.telefone_responsavel
+        document.getElementById('alunoCodigoPortal').value = aluno.codigo_portal
+
+        document.getElementById('alunoModal').classList.add('active')
+    } catch (error) {
+        console.error('Erro ao editar aluno:', error)
+        utils.showNotification('Erro ao carregar dados do aluno', 'error')
+    }
+}
+
+// Deletar aluno
+window.deletarAluno = async function(id) {
+    if (!confirm('Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.')) {
+        return
+    }
+    
+    try {
+        const { error } = await database.delete('alunos', id)
+        if (error) throw error
+        
+        utils.showNotification('Aluno excluído com sucesso!', 'success')
+        await loadAlunos()
+    } catch (error) {
+        console.error('Erro ao excluir aluno:', error)
+        utils.showNotification('Erro ao excluir aluno: ' + error.message, 'error')
+    }
+}
+
+// Atualizar estado do botão "Excluir selecionados" e do "Selecionar todos"
+function updateExcluirSelecionadosState() {
+    const checkboxes = document.querySelectorAll('.aluno-check:checked')
+    const total = checkboxes.length
+    const btn = document.getElementById('btnExcluirSelecionados')
+    const label = document.getElementById('btnExcluirSelecionadosLabel')
+    const selectAll = document.getElementById('selectAllAlunos')
+    if (btn) {
+        btn.style.display = total > 0 ? '' : 'none'
+        btn.disabled = total === 0
+    }
+    if (label) {
+        label.textContent = total > 0 ? `Excluir selecionados (${total})` : 'Excluir selecionados'
+    }
+    if (selectAll) {
+        const all = document.querySelectorAll('.aluno-check')
+        selectAll.checked = all.length > 0 && all.length === total
+        selectAll.indeterminate = total > 0 && total < all.length
+    }
+}
+
+// Excluir em massa os alunos selecionados
+window.excluirSelecionados = async function() {
+    const ids = [...document.querySelectorAll('.aluno-check:checked')].map(cb => cb.getAttribute('data-id'))
+    if (!ids.length) return
+    if (!confirm(`Tem certeza que deseja excluir ${ids.length} aluno(s)? Esta ação não pode ser desfeita.`)) {
+        return
+    }
+    const btn = document.getElementById('btnExcluirSelecionados')
+    if (btn) {
+        btn.disabled = true
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Excluindo...'
+    }
+    try {
+        let ok = 0
+        let erros = 0
+        for (const id of ids) {
+            const { error } = await database.delete('alunos', id)
+            if (error) {
+                console.error('Erro ao excluir aluno', id, error)
+                erros++
+            } else {
+                ok++
+            }
+        }
+        if (erros > 0) {
+            utils.showNotification(`${ok} excluído(s). Falha ao excluir ${erros} aluno(s).`, 'error')
+        } else {
+            utils.showNotification(`${ok} aluno(s) excluído(s) com sucesso!`, 'success')
+        }
+        await loadAlunos()
+    } catch (error) {
+        console.error('Erro ao excluir em massa:', error)
+        utils.showNotification('Erro ao excluir alunos: ' + error.message, 'error')
+    } finally {
+        if (btn) {
+            btn.disabled = false
+            btn.innerHTML = '<i class="fas fa-trash-alt"></i> <span id="btnExcluirSelecionadosLabel">Excluir selecionados</span>'
+            updateExcluirSelecionadosState()
+        }
+    }
+}
+
+// Fechar modal
+window.closeModal = function() {
+    document.getElementById('alunoModal').classList.remove('active')
+}
+
+// Fechar modal de notificações
+window.closeModalNotificacoes = function() {
+    document.getElementById('notificacoesAlunoModal').classList.remove('active')
+}
+
+// Balão da descrição ao passar o mouse (modal Ver notificações do aluno)
+let descricaoTooltipTimer = null
+function showDescricaoTooltip(el) {
+    const tooltip = document.getElementById('descricaoTooltip')
+    if (!tooltip) return
+    const text = el.getAttribute('data-descricao')
+    if (!text || !String(text).trim()) return
+    descricaoTooltipTimer = setTimeout(() => {
+        tooltip.textContent = text
+        tooltip.setAttribute('aria-hidden', 'false')
+        tooltip.classList.add('visible')
+        const rect = el.getBoundingClientRect()
+        const tw = 320
+        const thMax = 280
+        const pad = 8
+        let left = rect.left
+        let top = rect.bottom + pad
+        if (left + tw > window.innerWidth) left = window.innerWidth - tw - pad
+        if (left < pad) left = pad
+        if (top + thMax > window.innerHeight - pad) top = Math.max(pad, rect.top - thMax - pad)
+        if (top < pad) top = pad
+        tooltip.style.left = left + 'px'
+        tooltip.style.top = top + 'px'
+        descricaoTooltipTimer = null
+    }, 200)
+}
+function hideDescricaoTooltip() {
+    if (descricaoTooltipTimer) {
+        clearTimeout(descricaoTooltipTimer)
+        descricaoTooltipTimer = null
+    }
+    const tooltip = document.getElementById('descricaoTooltip')
+    if (tooltip) {
+        tooltip.classList.remove('visible')
+        tooltip.setAttribute('aria-hidden', 'true')
+    }
+}
+function initDescricaoTooltip() {
+    const tooltip = document.getElementById('descricaoTooltip')
+    if (!tooltip) return
+    document.addEventListener('mouseenter', (e) => {
+        const trigger = e.target.closest('.descricao-tooltip-trigger')
+        if (trigger) showDescricaoTooltip(trigger)
+    }, true)
+    document.addEventListener('mouseleave', (e) => {
+        const trigger = e.target.closest('.descricao-tooltip-trigger')
+        if (trigger && !tooltip.contains(e.relatedTarget)) hideDescricaoTooltip()
+    }, true)
+    tooltip.addEventListener('mouseleave', (e) => {
+        if (!e.relatedTarget || !e.relatedTarget.closest || !e.relatedTarget.closest('.descricao-tooltip-trigger')) hideDescricaoTooltip()
+    })
+}
+
+// Abrir modal de importação
+window.abrirModalImportacao = async function() {
+    await loadAlunos()
+    document.getElementById('importacaoModal').classList.add('active')
+}
+
+// Fechar modal de importação
+window.closeModalImportacao = function() {
+    document.getElementById('importacaoModal').classList.remove('active')
+    document.getElementById('importacaoForm').reset()
+    document.getElementById('importacaoProgress').style.display = 'none'
+}
+
+// Baixar template Excel
+window.baixarTemplateExcel = function() {
+    try {
+        if (typeof XLSX === 'undefined') {
+            utils.showNotification('Biblioteca Excel não carregada', 'error')
+            return
+        }
+
+        // Criar workbook
+        const wb = XLSX.utils.book_new()
+        
+        // Dados do template com datas no formato brasileiro
+        const templateData = [
+            ['nome', 'data_nascimento', 'matricula', 'turma', 'responsavel', 'telefone_responsavel'],
+            ['João Silva', '15-03-2005', '2024001', '3º A', 'Maria Silva', '(81) 99999-9999'],
+            ['Ana Costa', '22-07-2006', '2024002', '2º B', 'José Costa', '(81) 88888-8888'],
+            ['Pedro Santos', '08-11-2007', '2024003', '1º C', 'Lucia Santos', '(81) 77777-7777']
+        ]
+        
+        // Criar worksheet
+        const ws = XLSX.utils.aoa_to_sheet(templateData)
+
+        // Estilo da primeira linha (cabeçalho): fundo azul do sistema, texto branco
+        const headerStyle = {
+            fill: { patternType: 'solid', fgColor: { rgb: 'FF1E3A8A' }, bgColor: { rgb: 'FF1E3A8A' } },
+            font: { bold: true, color: { rgb: 'FFFFFFFF' }, sz: 11 }
+        }
+        const range = XLSX.utils.decode_range(ws['!ref'] || 'A1')
+        for (let col = range.s.c; col <= range.e.c; col++) {
+            const cellRef = XLSX.utils.encode_cell({ r: 0, c: col })
+            if (ws[cellRef]) {
+                ws[cellRef].s = headerStyle
+            }
+        }
+        
+        // Ajustar largura das colunas
+        ws['!cols'] = [
+            { wch: 20 }, // nome
+            { wch: 15 }, // data_nascimento
+            { wch: 12 }, // matricula
+            { wch: 10 }, // turma
+            { wch: 20 }, // responsavel
+            { wch: 18 }  // telefone_responsavel
+        ]
+        
+        // Adicionar worksheet ao workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Alunos')
+        
+        // Download
+        const nomeArquivo = `template_importacao_alunos_${new Date().toISOString().split('T')[0]}.xlsx`
+        XLSX.writeFile(wb, nomeArquivo)
+        
+        utils.showNotification('Template Excel baixado com sucesso!', 'success')
+
+    } catch (error) {
+        console.error('Erro ao gerar template Excel:', error)
+        utils.showNotification('Erro ao gerar template Excel', 'error')
+    }
+}
+
+// Baixar template CSV
+window.baixarTemplateCSV = function() {
+    try {
+        // Dados do template
+        const csvContent = `nome,data_nascimento,matricula,turma,responsavel,telefone_responsavel
+João Silva,2005-03-15,2024001,3º A,Maria Silva,(81) 99999-9999
+Ana Costa,2006-07-22,2024002,2º B,José Costa,(81) 88888-8888
+Pedro Santos,2007-11-08,2024003,1º C,Lucia Santos,(81) 77777-7777`
+        
+        // Criar blob e download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const link = document.createElement('a')
+        const url = URL.createObjectURL(blob)
+        
+        link.setAttribute('href', url)
+        link.setAttribute('download', `template_importacao_alunos_${new Date().toISOString().split('T')[0]}.csv`)
+        link.style.visibility = 'hidden'
+        
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        
+        utils.showNotification('Template CSV baixado com sucesso!', 'success')
+
+    } catch (error) {
+        console.error('Erro ao gerar template CSV:', error)
+        utils.showNotification('Erro ao gerar template CSV', 'error')
+    }
+}
+
+// Ver notificações do aluno
+window.verNotificacoesAluno = async function(alunoId) {
+    try {
+        // Buscar dados do aluno
+        const aluno = alunos.find(a => a.id === alunoId)
+        if (!aluno) {
+            utils.showNotification('Aluno não encontrado', 'error')
+            return
+        }
+
+        // Buscar notificações do aluno
+        const { data: notifData, error } = await database.select('notificacoes', {
+            select: '*',
+            order: { column: 'data_hora', ascending: false }
+        })
+        
+        if (error) throw error
+        
+        const notificacoesAluno = notifData?.filter(n => n.aluno_id === alunoId) || []
+
+        // Atualizar título do modal
+        document.getElementById('notificacoesModalTitle').innerHTML = `
+            <i class="fas fa-bell"></i>
+            Notificações de ${aluno.nome}
+        `
+
+        // Informações do aluno
+        const infoDiv = document.getElementById('notificacoesAlunoInfo')
+        infoDiv.innerHTML = `
+            <div class="grid-auto bg-light rounded-12 p-1">
+                <div>
+                    <strong>Matrícula:</strong> ${aluno.matricula}
+                </div>
+                <div>
+                    <strong>Turma:</strong> ${aluno.turma}
+                </div>
+                <div>
+                    <strong>Total:</strong> <span class="badge badge-info">${notificacoesAluno.length}</span>
+                </div>
+            </div>
+        `
+
+        // Lista de notificações
+        const listaDiv = document.getElementById('notificacoesAlunoLista')
+        
+        if (notificacoesAluno.length === 0) {
+            listaDiv.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-check-circle empty-state-icon"></i>
+                    <p class="empty-state-title">Nenhuma notificação registrada</p>
+                    <p class="empty-state-text">Este aluno não possui notificações disciplinares.</p>
+                </div>
+            `
+        } else {
+            try {
+                listaDiv.innerHTML = notificacoesAluno.map(notif => {
+                    // Normalizar nível para classe CSS (remover acentos)
+                    let nivelClass = notif.nivel ? notif.nivel.toLowerCase() : 'leve'
+                    nivelClass = nivelClass.replace(/á|à|â|ã|ä/g, 'a')
+                    nivelClass = nivelClass.replace(/é|è|ê|ë/g, 'e')
+                    nivelClass = nivelClass.replace(/í|ì|î|ï/g, 'i')
+                    nivelClass = nivelClass.replace(/ó|ò|ô|õ|ö/g, 'o')
+                    nivelClass = nivelClass.replace(/ú|ù|û|ü/g, 'u')
+                    nivelClass = nivelClass.replace(/ç/g, 'c')
+                    const descricaoTexto = notif.descricao || 'N/A'
+                    const descricaoAttr = escapeDescricaoAttr(descricaoTexto)
+                    const descricaoHtml = escapeHtml(descricaoTexto)
+                    return `
+                    <div class="card mb-1">
+                        <div class="card-header flex-between">
+                            <div class="notification-badges">
+                                <span class="badge badge-${nivelClass}">${notif.nivel || 'N/A'}</span>
+                                <span class="badge badge-${notif.status || 'pendente'} ml-0-5">${notif.status || 'N/A'}</span>
+                            </div>
+                            <span class="text-muted">
+                                <i class="fas fa-clock"></i>
+                                ${utils.formatDateTime(notif.data_hora)}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Descrição:</strong></p>
+                            <div class="descricao-tooltip-trigger" data-descricao="${descricaoAttr}"><span class="descricao-truncada">${descricaoHtml}</span></div>
+                            <p class="mt-1"><small><strong>Registrado por:</strong> ${notif.registrado_por || 'N/A'}</small></p>
+                        </div>
+                    </div>
+                    `
+                }).join('')
+            } catch (error) {
+                console.error('Erro ao renderizar notificações do aluno:', error)
+                listaDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Erro ao carregar notificações
+                    </div>
+                `
+            }
+        }
+
+        // Abrir modal
+        document.getElementById('notificacoesAlunoModal').classList.add('active')
+        
+    } catch (error) {
+        console.error('Erro ao carregar notificações do aluno:', error)
+        utils.showNotification('Erro ao carregar notificações', 'error')
+    }
+}
+
+// Funções auxiliares para importação
+function readFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = (e) => resolve(e.target.result)
+        reader.onerror = reject
+        reader.readAsArrayBuffer(file)
+    })
+}
+
+function parseFileData(data, fileName) {
+    return parseExcel(data)
+}
+
+function parseCSV(csvText) {
+    const lines = csvText.split('\n').filter(line => line.trim())
+    const headers = lines[0].split(',').map(h => h.trim())
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim())
+        const obj = {}
+        headers.forEach((header, index) => {
+            obj[header] = values[index] || ''
+        })
+        return obj
+    })
+}
+
+function parseExcel(arrayBuffer) {
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' })
+    const sheetName = workbook.SheetNames[0]
+    const worksheet = workbook.Sheets[sheetName]
+    return XLSX.utils.sheet_to_json(worksheet)
+}
+
+function isValidDate(dateString) {
+    if (!dateString) return false
+    
+    // Aceitar formato brasileiro DD-MM-AAAA ou formato ISO YYYY-MM-DD
+    const formatoBrasileiro = /^\d{2}-\d{2}-\d{4}$/
+    const formatoISO = /^\d{4}-\d{2}-\d{2}$/
+    
+    if (!formatoBrasileiro.test(dateString) && !formatoISO.test(dateString)) {
+        return false
+    }
+    
+    // Converter formato brasileiro para ISO se necessário
+    let dataISO = dateString
+    if (formatoBrasileiro.test(dateString)) {
+        const partes = dateString.split('-')
+        dataISO = `${partes[2]}-${partes[1]}-${partes[0]}`
+    }
+    
+    const date = new Date(dataISO)
+    return date instanceof Date && !isNaN(date)
+}
+
+// Converter data para formato ISO (YYYY-MM-DD)
+function converterDataParaISO(dateString) {
+    if (!dateString) return null
+    
+    // Se já estiver no formato ISO, retornar como está
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        return dateString
+    }
+    
+    // Se estiver no formato brasileiro DD-MM-AAAA, converter
+    if (/^\d{2}-\d{2}-\d{4}$/.test(dateString)) {
+        const partes = dateString.split('-')
+        return `${partes[2]}-${partes[1]}-${partes[0]}`
+    }
+    
+    return dateString
+}
+
+function generatePortalCode() {
+    return Math.floor(100000 + Math.random() * 900000).toString()
+}
+
+// Processar importação de alunos
+document.getElementById('importacaoForm').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    
+    const arquivo = document.getElementById('arquivoImportacao').files[0]
+    if (!arquivo) {
+        utils.showNotification('Selecione um arquivo', 'error')
+        return
+    }
+
+    try {
+        // Mostrar progresso
+        const progressDiv = document.getElementById('importacaoProgress')
+        const progressBar = document.getElementById('progressBar')
+        const statusP = document.getElementById('importacaoStatus')
+        
+        progressDiv.style.display = 'block'
+        progressBar.style.width = '10%'
+        statusP.textContent = 'Lendo arquivo...'
+
+        // Ler arquivo
+        const data = await readFile(arquivo)
+        progressBar.style.width = '30%'
+        statusP.textContent = 'Processando dados...'
+
+        // Converter para JSON
+        const alunosData = parseFileData(data, arquivo.name)
+        progressBar.style.width = '50%'
+        statusP.textContent = `Encontrados ${alunosData.length} alunos...`
+
+        // Validar dados
+        const alunosValidos = []
+        const erros = []
+
+        for (let i = 0; i < alunosData.length; i++) {
+            const aluno = alunosData[i]
+            const linha = i + 2 // +2 porque começa na linha 1 e pula cabeçalho
+
+            // Validar campos obrigatórios
+            if (!aluno.nome) {
+                erros.push(`Linha ${linha}: Nome é obrigatório`)
+                continue
+            }
+            if (!aluno.data_nascimento) {
+                erros.push(`Linha ${linha}: Data de nascimento é obrigatória`)
+                continue
+            }
+            if (!aluno.matricula) {
+                erros.push(`Linha ${linha}: Matrícula é obrigatória`)
+                continue
+            }
+            if (!aluno.turma) {
+                erros.push(`Linha ${linha}: Turma é obrigatória`)
+                continue
+            }
+            if (!aluno.responsavel) {
+                erros.push(`Linha ${linha}: Responsável é obrigatório`)
+                continue
+            }
+            if (!aluno.telefone_responsavel) {
+                erros.push(`Linha ${linha}: Telefone do responsável é obrigatório`)
+                continue
+            }
+
+            // Validar formato da data
+            if (!isValidDate(aluno.data_nascimento)) {
+                erros.push(`Linha ${linha}: Data inválida. Use formato DD-MM-AAAA (Excel) ou YYYY-MM-DD (CSV)`)
+                continue
+            }
+
+            // Converter data para formato ISO antes de salvar
+            aluno.data_nascimento = converterDataParaISO(aluno.data_nascimento)
+
+            // Gerar código portal único
+            aluno.codigo_portal = generatePortalCode()
+
+            alunosValidos.push(aluno)
+        }
+
+        progressBar.style.width = '70%'
+        statusP.textContent = `Validados ${alunosValidos.length} alunos...`
+
+        // Mostrar erros se houver
+        if (erros.length > 0) {
+            const erroMsg = erros.slice(0, 5).join('\n') + (erros.length > 5 ? `\n... e mais ${erros.length - 5} erros` : '')
+            utils.showNotification(`Erros encontrados:\n${erroMsg}`, 'error')
+            progressDiv.style.display = 'none'
+            return
+        }
+
+        // Verificação: alunos já cadastrados (por matrícula)
+        const matriculasExistentes = new Set((alunos || []).map(a => String(a.matricula || '').trim()))
+        const duplicados = alunosValidos.filter(a => matriculasExistentes.has(String(a.matricula || '').trim()))
+        let alunosAImportar = alunosValidos
+
+        if (duplicados.length > 0) {
+            const listaMatriculas = duplicados.map(a => a.matricula).join(', ')
+            const msg = duplicados.length === 1
+                ? `O arquivo contém 1 aluno já cadastrado (matrícula: ${listaMatriculas}). Deseja importar apenas os novos alunos? (O já cadastrado será ignorado.)`
+                : `O arquivo contém ${duplicados.length} alunos já cadastrados (matrículas: ${listaMatriculas}). Deseja importar apenas os novos alunos? (Os já cadastrados serão ignorados.)`
+            const confirmar = window.confirm(msg)
+            if (!confirmar) {
+                statusP.textContent = 'Importação cancelada.'
+                progressDiv.style.display = 'none'
+                return
+            }
+            alunosAImportar = alunosValidos.filter(a => !matriculasExistentes.has(String(a.matricula || '').trim()))
+            if (alunosAImportar.length === 0) {
+                utils.showNotification('Todos os alunos do arquivo já estão cadastrados. Nada a importar.', 'info')
+                progressDiv.style.display = 'none'
+                return
+            }
+        }
+
+        // Inserir no banco
+        let sucessos = 0
+        for (let i = 0; i < alunosAImportar.length; i++) {
+            const aluno = alunosAImportar[i]
+            try {
+                await database.insert('alunos', aluno)
+                sucessos++
+                const progress = 70 + ((i + 1) / alunosAImportar.length) * 25
+                progressBar.style.width = `${progress}%`
+                statusP.textContent = `Importando... ${sucessos}/${alunosAImportar.length}`
+            } catch (error) {
+                console.error(`Erro ao inserir aluno ${aluno.nome}:`, error)
+                erros.push(`${aluno.nome}: ${error.message}`)
+            }
+        }
+
+        progressBar.style.width = '100%'
+        const ignorados = alunosValidos.length - alunosAImportar.length
+        statusP.textContent = ignorados > 0
+            ? `Importação concluída! ${sucessos} alunos importados, ${ignorados} já existentes (ignorados).`
+            : `Importação concluída! ${sucessos} alunos importados.`
+
+        if (erros.length > 0) {
+            utils.showNotification(`Importação parcial: ${sucessos} importados, ${erros.length} erros.`, 'warning')
+        } else if (ignorados > 0) {
+            utils.showNotification(`${sucessos} alunos importados. ${ignorados} já cadastrados (ignorados).`, 'success')
+        } else {
+            utils.showNotification(`${sucessos} alunos importados com sucesso!`, 'success')
+        }
+
+        // Recarregar lista
+        await loadAlunos()
+        
+        // Fechar modal após 2 segundos
+        setTimeout(() => {
+            closeModalImportacao()
+        }, 2000)
+
+    } catch (error) {
+        console.error('Erro na importação:', error)
+        utils.showNotification('Erro ao processar arquivo: ' + error.message, 'error')
+        progressDiv.style.display = 'none'
+    }
+})
+
+// Salvar aluno
+document.getElementById('alunoForm').addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    const saveBtn = document.getElementById('saveBtn')
+    const originalText = saveBtn.innerHTML
+
+    const dados = {
+        nome: document.getElementById('alunoNome').value.trim(),
+        data_nascimento: document.getElementById('alunoDataNascimento').value,
+        matricula: document.getElementById('alunoMatricula').value.trim(),
+        turma: document.getElementById('alunoTurma').value.trim(),
+        responsavel: document.getElementById('alunoResponsavel').value.trim(),
+        telefone_responsavel: document.getElementById('alunoTelefone').value.trim(),
+        codigo_portal: document.getElementById('alunoCodigoPortal').value
+    }
+
+    try {
+        saveBtn.disabled = true
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...'
+
+        if (editingId) {
+            // Atualizar
+            const { error } = await database.update('alunos', editingId, dados)
+            if (error) throw error
+            utils.showNotification('Aluno atualizado com sucesso!', 'success')
+        } else {
+            // Criar
+            const { error } = await database.insert('alunos', dados)
+            if (error) throw error
+            utils.showNotification('Aluno cadastrado com sucesso!', 'success')
+        }
+
+        closeModal()
+        await loadAlunos()
+    } catch (error) {
+        console.error('Erro ao salvar aluno:', error)
+        utils.showNotification('Erro ao salvar aluno: ' + error.message, 'error')
+    } finally {
+        saveBtn.disabled = false
+        saveBtn.innerHTML = originalText
+    }
+})
+
+// Buscar alunos
+document.getElementById('searchInput').addEventListener('input', applyFilters)
+document.getElementById('turmaFilter').addEventListener('change', applyFilters)
+
+
+// Logout
+document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+    e.preventDefault()
+    if (confirm('Deseja sair do sistema?')) {
+        await auth.logout()
+        window.location.href = 'login.html'
+    }
+})
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', async () => {
+    initDescricaoTooltip()
+    // Selecionar todos / exclusão em massa: listeners uma vez
+    const selectAll = document.getElementById('selectAllAlunos')
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            document.querySelectorAll('.aluno-check').forEach(cb => { cb.checked = this.checked })
+            updateExcluirSelecionadosState()
+        })
+    }
+    const tbody = document.getElementById('alunosTableBody')
+    if (tbody) {
+        tbody.addEventListener('change', function (e) {
+            if (e.target.classList.contains('aluno-check')) updateExcluirSelecionadosState()
+        })
+    }
+
+    if (await checkAuth()) {
+        await loadAlunos()
+    }
+})
+

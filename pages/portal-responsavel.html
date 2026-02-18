@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Responsável - Notifica ETE</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/dashboard.css">
+    <link rel="stylesheet" href="../src/styles/portal-responsavel.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="../index.html"><img src="../assets/images/logo_notificaETE.svg" alt="Notifica ETE" class="logo-img"></a>
+            </div>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Início
+                </a>
+                <a href="login.html" class="nav-link">
+                    <i class="fas fa-lock"></i>
+                    Área do Operador
+                </a>
+            </nav>
+        </header>
+
+        <main class="main">
+            <div class="dashboard">
+                <div class="portal-hero">
+                    <i class="fas fa-user-friends"></i>
+                    <h1>Portal do Responsável</h1>
+                    <p>
+                        Consulte as notificações do seu filho(a) usando o código fornecido pela escola
+                    </p>
+                </div>
+
+                <!-- Formulário de Consulta -->
+                <div class="card consulta-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-search"></i> Consultar Notificações</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="consultaForm">
+                            <div class="form-group">
+                                <label for="codigoPortal" class="form-label">
+                                    Código Portal (6 dígitos)
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="codigoPortal" 
+                                    class="form-input codigo-input" 
+                                    maxlength="6"
+                                    pattern="[0-9]{6}"
+                                    placeholder="000000"
+                                    required
+                                    autocomplete="off"
+                                >
+                                <small class="form-text">
+                                    Digite o código de 6 dígitos fornecido pela escola
+                                </small>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i>
+                                Consultar Notificações
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Resultado da Consulta -->
+                <div id="resultadoConsulta">
+                    <!-- Dados do Aluno -->
+                    <div class="card aluno-info-card">
+                        <div class="card-header">
+                            <h3>
+                                <i class="fas fa-user"></i>
+                                Informações do Aluno
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-grid">
+                                <div>
+                                    <strong>Nome:</strong>
+                                    <p id="alunoNome"></p>
+                                </div>
+                                <div>
+                                    <strong>Matrícula:</strong>
+                                    <p id="alunoMatricula"></p>
+                                </div>
+                                <div>
+                                    <strong>Turma:</strong>
+                                    <p id="alunoTurma"></p>
+                                </div>
+                                <div>
+                                    <strong>Responsável:</strong>
+                                    <p id="alunoResponsavel"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estatísticas -->
+                    <div class="stats-grid portal-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalNotificacoes">0</h3>
+                                <p>Total de Notificações</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="notificacoesPendentes">0</h3>
+                                <p>Pendentes</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="notificacoesResolvidas">0</h3>
+                                <p>Resolvidas</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline de Notificações -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-history"></i> Histórico de Notificações</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="timelineNotificacoes" class="timeline"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botão Nova Consulta -->
+                    <div class="nova-consulta-container">
+                        <button class="btn btn-secondary" onclick="novaConsulta()">
+                            <i class="fas fa-redo"></i>
+                            Nova Consulta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 Notifica ETE - Sistema de Notificações Disciplinares</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../src/js/supabase-config.js"></script>
+    <script src="../src/js/supabase-global.js"></script>
+    <script src="../src/js/portal-responsavel.js"></script>
+</body>
+</html>

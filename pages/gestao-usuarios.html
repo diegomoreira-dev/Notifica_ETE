@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de usuários - Notifica ETE</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/dashboard.css">
+    <link rel="stylesheet" href="../src/styles/utilities.css">
+    <link rel="stylesheet" href="../src/styles/forms.css">
+    <link rel="stylesheet" href="../src/styles/components.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="painel.html"><img src="../assets/images/logo_notificaETE.svg" alt="Notifica ETE" class="logo-img"></a>
+            </div>
+            <nav class="nav">
+                <a href="painel.html" class="nav-link"><i class="fas fa-home"></i> Painel</a>
+                <a href="alunos.html" class="nav-link"><i class="fas fa-users"></i> Alunos</a>
+                <a href="notificacoes.html" class="nav-link"><i class="fas fa-exclamation-triangle"></i> Notificações</a>
+                <a href="relatorios.html" class="nav-link"><i class="fas fa-chart-line"></i> Relatórios</a>
+                <a href="perfil.html" class="nav-link"><i class="fas fa-user"></i> Perfil</a>
+                <a href="gestao-usuarios.html" class="nav-link active"><i class="fas fa-user-cog"></i> Gestão de usuários</a>
+                <a href="#" id="logoutBtn" class="nav-link"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            </nav>
+        </header>
+
+        <main class="main">
+            <div class="dashboard">
+                <div class="dashboard-header">
+                    <h2><i class="fas fa-user-cog"></i> Gestão de usuários</h2>
+                    <p>Convidar operadores e gerenciar acessos (somente admin)</p>
+                </div>
+
+                <!-- Convidar usuário -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <h3 class="mb-0"><i class="fas fa-user-plus"></i> Convidar usuário</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="formConvidar" class="flex-gap" style="display:flex;flex-wrap:wrap;align-items:center;">
+                            <div class="form-group" style="flex:1;min-width:200px;">
+                                <label for="emailConvidar" class="form-label">E-mail</label>
+                                <input type="email" id="emailConvidar" class="form-input" placeholder="novo.operador@escola.com" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;display:flex;align-items:flex-end;">
+                                <button type="submit" class="btn btn-primary" id="btnConvidar">
+                                    <i class="fas fa-paper-plane"></i> Enviar convite
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Lista de usuários -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0"><i class="fas fa-users"></i> Usuários do sistema</h3>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnRecarregar" title="Recarregar lista">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="usuariosLoading" class="loading-container" style="display: none;">
+                            <div class="loading"></div>
+                            <p>Carregando usuários...</p>
+                        </div>
+                        <div id="usuariosErro" class="alert alert-danger" style="display: none;"></div>
+                        <div class="overflow-wrapper" id="usuariosWrapper" style="display: none;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>E-mail</th>
+                                        <th>Nome</th>
+                                        <th>Função</th>
+                                        <th>Criado em</th>
+                                        <th class="min-w-200">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usuariosTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div id="usuariosEmpty" class="empty-state" style="display: none;">
+                            <i class="fas fa-users empty-state-icon"></i>
+                            <p class="empty-state-title">Nenhum usuário encontrado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modal Editar usuário -->
+        <div class="modal" id="modalEditarUsuario">
+            <div class="modal-content modal-small">
+                <div class="modal-header">
+                    <h3><i class="fas fa-user-edit"></i> Editar usuário</h3>
+                    <button type="button" class="modal-close" id="btnFecharModalEditar">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarUsuario">
+                        <input type="hidden" id="editarUserId">
+                        <div class="form-group">
+                            <label class="form-label">E-mail</label>
+                            <input type="text" id="editarEmail" class="form-input" readonly style="background:#f1f5f9;">
+                        </div>
+                        <div class="form-group">
+                            <label for="editarNome" class="form-label">Nome (exibição)</label>
+                            <input type="text" id="editarNome" class="form-input" placeholder="Nome do usuário">
+                        </div>
+                        <div class="form-group">
+                            <label for="editarRole" class="form-label">Função</label>
+                            <select id="editarRole" class="form-input">
+                                <option value="operador">Operador</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <button type="submit" class="btn btn-primary" id="btnSalvarEditar">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="btnCancelarEditar">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2025 Notifica ETE - Sistema de Notificações Disciplinares</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../src/js/supabase-config.js"></script>
+    <script src="../src/js/supabase-global.js"></script>
+    <script src="../src/js/gestao-usuarios.js"></script>
+</body>
+</html>

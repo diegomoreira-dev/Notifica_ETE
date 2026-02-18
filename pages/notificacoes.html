@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificações - Notifica ETE</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/dashboard.css">
+    <link rel="stylesheet" href="../src/styles/utilities.css">
+    <link rel="stylesheet" href="../src/styles/forms.css">
+    <link rel="stylesheet" href="../src/styles/components.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="painel.html"><img src="../assets/images/logo_notificaETE.svg" alt="Notifica ETE" class="logo-img"></a>
+            </div>
+            <nav class="nav">
+                <a href="painel.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Painel
+                </a>
+                <a href="alunos.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Alunos
+                </a>
+                <a href="notificacoes.html" class="nav-link active">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Notificações
+                </a>
+                <a href="relatorios.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Relatórios
+                </a>
+                <a href="perfil.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    Perfil
+                </a>
+                <a href="gestao-usuarios.html" class="nav-link" id="linkGestaoUsuarios" style="display: none;">
+                    <i class="fas fa-user-cog"></i>
+                    Gestão de usuários
+                </a>
+                <a href="#" id="logoutBtn" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </a>
+            </nav>
+        </header>
+
+        <main class="main">
+            <div class="dashboard">
+                <div class="dashboard-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Gestão de Notificações</h2>
+                    <p>Registre e gerencie notificações disciplinares</p>
+                </div>
+
+                <!-- Barra de ações e filtros -->
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="flex-gap mb-1">
+                            <div class="flex-1 min-w-200">
+                                <input 
+                                    type="text" 
+                                    id="searchInput" 
+                                    class="form-input" 
+                                    placeholder="🔍 Buscar por nome ou matrícula..."
+                                >
+                            </div>
+                            <div class="min-w-120">
+                                <select id="nivelFilter" class="form-input">
+                                    <option value="">Todos os Níveis</option>
+                                    <option value="Leve">Leve</option>
+                                    <option value="Média">Média</option>
+                                    <option value="Grave">Grave</option>
+                                </select>
+                            </div>
+                            <div class="min-w-120">
+                                <select id="statusFilter" class="form-input">
+                                    <option value="">Todos os Status</option>
+                                    <option value="ativo">Ativo</option>
+                                    <option value="pendente">Pendente</option>
+                                    <option value="resolvido">Resolvido</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="openModalNovo()">
+                                <i class="fas fa-plus"></i>
+                                Nova Notificação
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela de notificações -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-table"></i> Notificações (<span id="totalNotificacoesExibidas">0</span>)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="overflow-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Data/Hora</th>
+                                        <th>Aluno</th>
+                                        <th>Nível</th>
+                                        <th>Descrição</th>
+                                        <th>Status</th>
+                                        <th class="min-w-200">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="notificacoesTableBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <div class="loading"></div>
+                                            <p>Carregando notificações...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Balão com descrição completa (hover na célula Descrição) -->
+        <div id="descricaoTooltip" class="descricao-tooltip" aria-hidden="true"></div>
+
+        <footer class="footer">
+            <p>&copy; 2025 Notifica ETE - Sistema de Notificações Disciplinares</p>
+        </footer>
+    </div>
+
+    <!-- Modal de Conferência WhatsApp -->
+    <div class="modal modal-small" id="whatsappModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fab fa-whatsapp text-success"></i>
+                    Conferir Mensagem WhatsApp
+                </h3>
+                <button class="modal-close" onclick="closeModalWhatsApp()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Prévia da mensagem:</strong> Você pode editar o texto antes de enviar.
+                </div>
+                
+                <div class="form-group">
+                    <label for="whatsappMessage">
+                        <i class="fab fa-whatsapp"></i>
+                        Mensagem para WhatsApp:
+                    </label>
+                    <textarea 
+                        id="whatsappMessage" 
+                        rows="15" 
+                        style="width: 100%; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.4;"
+                        placeholder="Digite sua mensagem aqui..."
+                    ></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="whatsappPhone">
+                        <i class="fas fa-phone"></i>
+                        Telefone do Responsável:
+                    </label>
+                    <input 
+                        type="text" 
+                        id="whatsappPhone" 
+                        class="form-input"
+                    >
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModalWhatsApp()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="enviarWhatsAppConfirmado()">
+                        <i class="fab fa-whatsapp"></i>
+                        Abrir WhatsApp Web
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Notificação -->
+    <div class="modal modal-medium" id="notificacaoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">
+                    <i class="fas fa-plus-circle"></i>
+                    Nova Notificação
+                </h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="notificacaoForm">
+                    <input type="hidden" id="notificacaoId">
+                    
+                    <div class="form-group">
+                        <label for="notificacaoAlunoSearch" class="form-label">Aluno *</label>
+                        <div class="aluno-select-search" id="alunoSelectSearch">
+                            <input type="hidden" id="notificacaoAluno" name="aluno_id" required>
+                            <input type="text" id="notificacaoAlunoSearch" class="form-input" placeholder="Buscar por nome, matrícula ou turma..." autocomplete="off" aria-label="Buscar aluno">
+                            <div class="aluno-select-dropdown" id="alunoSelectDropdown" role="listbox" aria-hidden="true"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notificacaoDataHora" class="form-label">Data e Hora *</label>
+                        <input type="datetime-local" id="notificacaoDataHora" class="form-input" required>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="notificacaoNivel" class="form-label">Nível *</label>
+                            <select id="notificacaoNivel" class="form-input" required>
+                                <option value="">Selecione o nível</option>
+                                <option value="Leve">Leve</option>
+                                <option value="Média">Média</option>
+                                <option value="Grave">Grave</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notificacaoStatus" class="form-label">Status *</label>
+                            <select id="notificacaoStatus" class="form-input" required>
+                                <option value="ativo">Ativo</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="resolvido">Resolvido</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notificacaoDescricao" class="form-label">Descrição *</label>
+                        <textarea 
+                            id="notificacaoDescricao" 
+                            class="form-input" 
+                            rows="4"
+                            placeholder="Descreva a situação..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notificacaoRegistradoPor" class="form-label">Registrado Por *</label>
+                        <input 
+                            type="text" 
+                            id="notificacaoRegistradoPor" 
+                            class="form-input form-input-readonly" 
+                            required
+                            readonly
+                        >
+                    </div>
+
+                    <div class="form-group flex-end mt-2">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <i class="fas fa-save"></i>
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../src/js/supabase-config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="../src/js/supabase-global.js"></script>
+    <script src="../src/js/auth-nav.js"></script>
+    <script src="../src/js/notificacoes.js"></script>
+</body>
+</html>

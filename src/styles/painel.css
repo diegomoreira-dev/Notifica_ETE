@@ -1,0 +1,224 @@
+/* ================================================
+   NOTIFICA ETE - Estilos Específicos do Painel
+   ================================================ */
+
+/* Card de notificações por nível */
+.notificacoes-nivel-card {
+    margin-bottom: 2.5rem;
+    animation: fadeInUp 0.8s ease-out 0.3s both;
+    transition: box-shadow 0.3s ease;
+}
+
+.notificacoes-nivel-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Responsividade para níveis */
+@media (max-width: 768px) {
+    .niveis-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat-item {
+        min-height: 120px;
+        padding: 1.5rem 1rem;
+    }
+    
+    .stat-item .stat-icon {
+        font-size: 1.75rem;
+    }
+    
+    .stat-item h4 {
+        font-size: 1.75rem;
+    }
+}
+
+/* Grid de níveis */
+.niveis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 0;
+}
+
+/* Stat item genérico */
+.stat-item {
+    text-align: center;
+    padding: 0.75rem 1.25rem;
+    border-radius: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 140px;
+}
+
+.stat-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.stat-item:hover::before {
+    transform: scaleX(1);
+}
+
+.stat-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+/* Stat item Leve */
+.stat-item.leve {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    color: #1b5e20;
+}
+
+.stat-item.leve .stat-icon {
+    font-size: 2rem;
+    color: #2e7d32;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.stat-item.leve:hover .stat-icon {
+    transform: scale(1.15);
+}
+
+.stat-item.leve h4 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+    color: #1b5e20;
+    transition: transform 0.3s ease;
+}
+
+.stat-item.leve:hover h4 {
+    transform: scale(1.05);
+}
+
+.stat-item.leve p {
+    margin: 0;
+    color: #1b5e20;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Stat item Média */
+.stat-item.media {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+    color: #92400e;
+}
+
+.stat-item.media .stat-icon {
+    font-size: 2rem;
+    color: #ffb300;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.stat-item.media:hover .stat-icon {
+    transform: scale(1.15);
+}
+
+.stat-item.media h4 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+    color: #92400e;
+    transition: transform 0.3s ease;
+}
+
+.stat-item.media:hover h4 {
+    transform: scale(1.05);
+}
+
+.stat-item.media p {
+    margin: 0;
+    color: #92400e;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Stat item Grave  */
+.stat-item.grave {
+    background: linear-gradient(135deg, #fdecea 0%, #f8b4b4 100%);
+    color: #7a0000;
+}
+
+.stat-item.grave .stat-icon {
+    font-size: 2rem;
+    color: #b22222;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.stat-item.grave:hover .stat-icon {
+    transform: scale(1.15);
+}
+
+.stat-item.grave h4 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+    color: #7a0000;
+    transition: transform 0.3s ease;
+}
+
+.stat-item.grave:hover h4 {
+    transform: scale(1.05);
+}
+
+.stat-item.grave p {
+    margin: 0;
+    color: #7a0000;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Seção de alertas */
+#alertasSection {
+    margin-bottom: 2.5rem;
+    display: none;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+#alertasSection.active {
+    display: block;
+}
+
+#alertasSection .card-header {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+    border-bottom: 3px solid #ef4444;
+}
+
+#alertasSection .card {
+    border: 2px solid #fee2e2;
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.15);
+}
+

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Notifica ETE</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/dashboard.css">
+    <link rel="stylesheet" href="../src/styles/utilities.css">
+    <link rel="stylesheet" href="../src/styles/forms.css">
+    <link rel="stylesheet" href="../src/styles/components.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="painel.html"><img src="../assets/images/logo_notificaETE.svg" alt="Notifica ETE" class="logo-img"></a>
+            </div>
+            <nav class="nav">
+                <a href="painel.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Painel
+                </a>
+                <a href="alunos.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Alunos
+                </a>
+                <a href="notificacoes.html" class="nav-link">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Notificações
+                </a>
+                <a href="relatorios.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Relatórios
+                </a>
+                <a href="perfil.html" class="nav-link active">
+                    <i class="fas fa-user"></i>
+                    Perfil
+                </a>
+                <a href="gestao-usuarios.html" class="nav-link" id="linkGestaoUsuarios" style="display: none;">
+                    <i class="fas fa-user-cog"></i>
+                    Gestão de usuários
+                </a>
+                <a href="#" id="logoutBtn" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </a>
+            </nav>
+        </header>
+
+        <main class="main">
+            <div class="dashboard">
+                <div class="dashboard-header">
+                    <h2><i class="fas fa-user"></i> Meu Perfil</h2>
+                    <p>Gerencie suas informações pessoais e senha</p>
+                </div>
+
+                <!-- Informações do Usuário -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-info-circle"></i> Informações da Conta</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope"></i> Email
+                                </label>
+                                <input 
+                                    type="email" 
+                                    id="userEmail" 
+                                    class="form-input form-input-readonly" 
+                                    readonly
+                                >
+                                <small class="helper-text">
+                                    O email não pode ser alterado
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="userDisplayName" class="form-label">
+                                    <i class="fas fa-user"></i> Nome de Exibição
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="userDisplayName" 
+                                    class="form-input" 
+                                    placeholder="Digite seu nome completo"
+                                >
+                                <small class="helper-text">
+                                    Este nome será exibido nos relatórios e documentos
+                                </small>
+                            </div>
+
+                            <div class="flex-gap">
+                                <button class="btn btn-primary" onclick="salvarPerfil()" id="btnSalvarPerfil">
+                                    <i class="fas fa-save"></i>
+                                    Salvar Alterações
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alterar Senha -->
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <h3><i class="fas fa-lock"></i> Alterar Senha</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="senhaForm" onsubmit="alterarSenha(event)">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="senhaAtual" class="form-label">
+                                        <i class="fas fa-key"></i> Senha Atual
+                                    </label>
+                                    <div class="password-field">
+                                        <input 
+                                            type="password" 
+                                            id="senhaAtual" 
+                                            class="form-input" 
+                                            placeholder="Digite sua senha atual"
+                                            required
+                                        >
+                                        <button 
+                                            type="button" 
+                                            class="password-toggle" 
+                                            onclick="togglePassword('senhaAtual', this)"
+                                        >
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="novaSenha" class="form-label">
+                                        <i class="fas fa-lock"></i> Nova Senha
+                                    </label>
+                                    <div class="password-field">
+                                        <input 
+                                            type="password" 
+                                            id="novaSenha" 
+                                            class="form-input" 
+                                            placeholder="Digite a nova senha"
+                                            required
+                                            minlength="6"
+                                        >
+                                        <button 
+                                            type="button" 
+                                            class="password-toggle" 
+                                            onclick="togglePassword('novaSenha', this)"
+                                        >
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <small class="helper-text">
+                                        A senha deve ter no mínimo 6 caracteres
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="confirmarSenha" class="form-label">
+                                        <i class="fas fa-lock"></i> Confirmar Nova Senha
+                                    </label>
+                                    <div class="password-field">
+                                        <input 
+                                            type="password" 
+                                            id="confirmarSenha" 
+                                            class="form-input" 
+                                            placeholder="Digite a nova senha novamente"
+                                            required
+                                        >
+                                        <button 
+                                            type="button" 
+                                            class="password-toggle" 
+                                            onclick="togglePassword('confirmarSenha', this)"
+                                        >
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex-gap">
+                                    <button type="submit" class="btn btn-warning" id="btnAlterarSenha">
+                                        <i class="fas fa-key"></i>
+                                        Alterar Senha
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="limparFormSenha()">
+                                        <i class="fas fa-eraser"></i>
+                                        Limpar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Informações Adicionais -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-info-circle"></i> Informações do Sistema</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="info-row">
+                                <span class="info-row-label">Última Atualização:</span>
+                                <span id="lastUpdate" class="info-row-value"></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-row-label">Data de Criação:</span>
+                                <span id="createdAt" class="info-row-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 Notifica ETE - Sistema de Notificações Disciplinares</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../src/js/supabase-config.js"></script>
+    <script src="../src/js/supabase-global.js"></script>
+    <script src="../src/js/auth-nav.js"></script>
+    <script src="../src/js/perfil.js"></script>
+</body>
+</html>
+

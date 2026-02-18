@@ -1,0 +1,39 @@
+{
+  "name": "notifica-ete",
+  "version": "1.0.0",
+  "description": "Notifica ETE - Sistema de Penalidades Disciplinares para Escolas Técnicas",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx live-server --port=3000",
+    "build": "node scripts/build-vercel.js",
+    "deploy": "echo 'Deploy via Vercel'"
+  },
+  "keywords": [
+    "escola",
+    "penalidades",
+    "disciplina",
+    "supabase",
+    "javascript",
+    "html",
+    "css"
+  ],
+  "author": "DDV Technology",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "serve": "^14.2.1"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/notifica-ete.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/notifica-ete/issues"
+  },
+  "homepage": "https://github.com/your-username/notifica-ete#readme"
+}

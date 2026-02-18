@@ -1,0 +1,285 @@
+/* ================================================
+   NOTIFICA ETE - Estilos do Portal do Responsável
+   ================================================ */
+
+/* Hero do portal */
+
+.portal-hero {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, #0A2A59 0%, #1E3A8A 100%);
+    color: white;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+}
+
+.portal-hero i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.portal-hero h1 {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.portal-hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* Card de consulta */
+.consulta-card {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+
+/* Input de código */
+.codigo-input {
+    text-align: center;
+    font-size: 2rem;
+    letter-spacing: 0.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Resultado da consulta */
+#resultadoConsulta {
+    display: none;
+}
+
+#resultadoConsulta.active {
+    display: block;
+}
+
+/* Card de informações do aluno */
+.aluno-info-card {
+    margin-bottom: 2rem;
+}
+
+.aluno-info-card .card-header h3 {
+    color: white;
+}
+
+/* Grid de informações */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+/* Estatísticas no portal */
+.portal-stats {
+    margin-bottom: 2rem;
+}
+
+.portal-stats .stat-card:nth-child(1) .stat-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.portal-stats .stat-card:nth-child(2) .stat-icon {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.portal-stats .stat-card:nth-child(3) .stat-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+/* Timeline */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #0A2A59, #1E3A8A);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.5rem;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #0A2A59;
+}
+
+.timeline-item.grave::before {
+    border-color: #ef4444;
+}
+
+.timeline-item.media::before {
+    border-color: #f59e0b;
+}
+
+.timeline-item.leve::before {
+    border-color: #10b981;
+}
+
+/* Botão de nova consulta */
+.nova-consulta-container {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* ========== Responsivo - tablets e mobile ========== */
+@media (max-width: 768px) {
+    .portal-hero {
+        padding: 2rem 1.25rem;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+    }
+
+    .portal-hero i {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .portal-hero h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .portal-hero p {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .consulta-card {
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .consulta-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .codigo-input {
+        font-size: 1.5rem;
+        letter-spacing: 0.25rem;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .info-grid strong {
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-grid p {
+        margin: 0 0 0.75rem 0;
+    }
+
+    .aluno-info-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .portal-stats {
+        margin-bottom: 1.5rem;
+    }
+
+    .timeline {
+        padding-left: 1.5rem;
+    }
+
+    .timeline::before {
+        left: 0;
+    }
+
+    .timeline-item::before {
+        left: -1.65rem;
+        width: 10px;
+        height: 10px;
+    }
+
+    .timeline-item {
+        padding-bottom: 1.25rem;
+    }
+
+    .timeline-item .card,
+    .timeline-item p {
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .nova-consulta-container {
+        margin-top: 1.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .nova-consulta-container .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .portal-hero {
+        padding: 1.5rem 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .portal-hero i {
+        font-size: 2rem;
+    }
+
+    .portal-hero h1 {
+        font-size: 1.4rem;
+    }
+
+    .portal-hero p {
+        font-size: 0.9rem;
+    }
+
+    .consulta-card .card-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .codigo-input {
+        font-size: 1.35rem;
+        letter-spacing: 0.15rem;
+        padding: 0.75rem;
+    }
+
+    .card .card-header h3 {
+        font-size: 1rem;
+    }
+
+    .portal-stats .stat-card {
+        flex-direction: row;
+        padding: 1rem;
+    }
+
+    .portal-stats .stat-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.25rem;
+        min-width: 48px;
+    }
+
+    .portal-stats .stat-content h3 {
+        font-size: 1.5rem;
+    }
+
+    .portal-stats .stat-content p {
+        font-size: 0.8rem;
+    }
+}

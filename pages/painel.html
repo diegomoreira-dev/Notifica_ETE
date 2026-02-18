@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - Notifica ETE</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/dashboard.css">
+    <link rel="stylesheet" href="../src/styles/painel.css">
+    <link rel="stylesheet" href="../src/styles/components.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="painel.html"><img src="../assets/images/logo_notificaETE.svg" alt="Notifica ETE" class="logo-img"></a>
+            </div>
+            <nav class="nav">
+                <a href="painel.html" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    Painel
+                </a>
+                <a href="alunos.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Alunos
+                </a>
+                <a href="notificacoes.html" class="nav-link">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Notificações
+                </a>
+                <a href="relatorios.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Relatórios
+                </a>
+                <a href="perfil.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    Perfil
+                </a>
+                <a href="gestao-usuarios.html" class="nav-link" id="linkGestaoUsuarios" style="display: none;">
+                    <i class="fas fa-user-cog"></i>
+                    Gestão de usuários
+                </a>
+                <a href="#" id="logoutBtn" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </a>
+            </nav>
+        </header>
+
+        <main class="main">
+            <div class="dashboard">
+                <!-- Header do Dashboard -->
+                <div class="dashboard-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                    <p id="welcomeMessage">Bem-vindo ao sistema de gestão de notificações disciplinares</p>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalAlunos">0</h3>
+                            <p>Total de Alunos</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalNotificacoes">0</h3>
+                            <p>Total de Notificações</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="notificacoesPendentes">0</h3>
+                            <p>Pendentes</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="notificacoesResolvidas">0</h3>
+                            <p>Resolvidas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notificações por Nível -->
+                <div class="card notificacoes-nivel-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-bar"></i> Notificações por Nível</h3>
+                    </div>
+                    <div class="card-body p-1-5">
+                        <div class="niveis-grid">
+                            <div class="stat-item leve">
+                                <div class="stat-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <h4 id="notificacoesLeves">0</h4>
+                                <p>Leves</p>
+                            </div>
+                            <div class="stat-item media">
+                                <div class="stat-icon">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <h4 id="notificacoesMedias">0</h4>
+                                <p>Médias</p>
+                            </div>
+                            <div class="stat-item grave">
+                                <div class="stat-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <h4 id="notificacoesGraves">0</h4>
+                                <p>Graves</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alertas -->
+                <div id="alertasSection" class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bell"></i> Alertas - Alunos com 3 ou + Notificações</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="alertasList"></div>
+                    </div>
+                </div>
+
+                <!-- Ações Rápidas -->
+                <div class="quick-actions">
+                    <h3><i class="fas fa-bolt"></i> Ações Rápidas</h3>
+                    <div class="actions-grid">
+                        <a href="alunos.html" class="action-card">
+                            <i class="fas fa-user-plus"></i>
+                            <h4>Cadastrar Aluno</h4>
+                            <p>Adicionar novo aluno ao sistema</p>
+                        </a>
+                        <a href="notificacoes.html" class="action-card">
+                            <i class="fas fa-plus-circle"></i>
+                            <h4>Nova Notificação</h4>
+                            <p>Registrar nova notificação disciplinar</p>
+                        </a>
+                        <a href="notificacoes.html" class="action-card">
+                            <i class="fas fa-list"></i>
+                            <h4>Ver Notificações</h4>
+                            <p>Visualizar todas as notificações</p>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Notificações Recentes -->
+                <div class="recent-penalties">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Notificações Recentes</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="notificacoesRecentesList">
+                            <div class="loading-container">
+                                <div class="loading"></div>
+                                <p>Carregando notificações...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Balão com descrição completa (hover na descrição das notificações recentes) -->
+        <div id="descricaoTooltip" class="descricao-tooltip" aria-hidden="true"></div>
+
+        <footer class="footer">
+            <p>&copy; 2025 Notifica ETE - Sistema de Notificações Disciplinares</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../src/js/supabase-config.js"></script>
+    <script src="../src/js/supabase-global.js"></script>
+    <script src="../src/js/auth-nav.js"></script>
+    <script src="../src/js/painel.js"></script>
+</body>
+</html>

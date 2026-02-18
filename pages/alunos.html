@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alunos - Notifica ETE</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/dashboard.css">
+    <link rel="stylesheet" href="../src/styles/utilities.css">
+    <link rel="stylesheet" href="../src/styles/forms.css">
+    <link rel="stylesheet" href="../src/styles/components.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="painel.html"><img src="../assets/images/logo_notificaETE.svg" alt="Notifica ETE" class="logo-img"></a>
+            </div>
+            <nav class="nav">
+                <a href="painel.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Painel
+                </a>
+                <a href="alunos.html" class="nav-link active">
+                    <i class="fas fa-users"></i>
+                    Alunos
+                </a>
+                <a href="notificacoes.html" class="nav-link">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Notificações
+                </a>
+                <a href="relatorios.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Relatórios
+                </a>
+                <a href="perfil.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    Perfil
+                </a>
+                <a href="gestao-usuarios.html" class="nav-link" id="linkGestaoUsuarios" style="display: none;">
+                    <i class="fas fa-user-cog"></i>
+                    Gestão de usuários
+                </a>
+                <a href="#" id="logoutBtn" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </a>
+            </nav>
+        </header>
+
+        <main class="main">
+            <div class="dashboard">
+                <div class="dashboard-header">
+                    <h2><i class="fas fa-users"></i> Gestão de Alunos</h2>
+                    <p>Cadastre e gerencie os alunos da escola</p>
+                </div>
+
+                <!-- Barra de ações -->
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="flex-gap mb-1">
+                            <div class="flex-1 min-w-200">
+                                <input type="text" id="searchInput" class="form-input"
+                                    placeholder="🔍 Buscar por nome, matrícula ou código...">
+                            </div>
+                            <div class="min-w-150">
+                                <select id="turmaFilter" class="form-input">
+                                    <option value="">Todas as Turmas</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="openModalNovo()">
+                                <i class="fas fa-plus"></i>
+                                Novo Aluno
+                            </button>
+                            <button class="btn btn-success" onclick="abrirModalImportacao()">
+                                <i class="fas fa-file-import"></i>
+                                Importar Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela de alunos -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-1">
+                        <h3 class="mb-0">
+                            <i class="fas fa-table"></i> Lista de Alunos (<span id="totalAlunosExibidos">0</span>)
+                        </h3>
+                        <div class="flex-gap">
+                            <button type="button" class="btn btn-danger" id="btnExcluirSelecionados" onclick="excluirSelecionados()" disabled title="Excluir alunos selecionados" style="display: none;">
+                                <i class="fas fa-trash-alt"></i>
+                                <span id="btnExcluirSelecionadosLabel">Excluir selecionados</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="overflow-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="th-checkbox">
+                                            <input type="checkbox" id="selectAllAlunos" title="Selecionar todos da lista">
+                                        </th>
+                                        <th>Código Portal</th>
+                                        <th>Nome</th>
+                                        <th>Data Nasc.</th>
+                                        <th>Matrícula</th>
+                                        <th>Turma</th>
+                                        <th>Responsável</th>
+                                        <th>Telefone</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="alunosTableBody">
+                                    <tr>
+                                        <td colspan="9" class="text-center">
+                                            <div class="loading"></div>
+                                            <p>Carregando alunos...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 Notifica ETE - Sistema de Notificações Disciplinares</p>
+        </footer>
+    </div>
+
+    <!-- Modal de Aluno -->
+    <div class="modal modal-small" id="alunoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">
+                    <i class="fas fa-user-plus"></i>
+                    Novo Aluno
+                </h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="alunoForm">
+                    <input type="hidden" id="alunoId">
+
+                    <div class="form-group">
+                        <label for="alunoNome" class="form-label">Nome Completo *</label>
+                        <input type="text" id="alunoNome" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alunoDataNascimento" class="form-label">Data de Nascimento *</label>
+                        <input type="date" id="alunoDataNascimento" class="form-input" required>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="alunoMatricula" class="form-label">Matrícula *</label>
+                            <input type="text" id="alunoMatricula" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="alunoTurma" class="form-label">Turma *</label>
+                            <input type="text" id="alunoTurma" class="form-input" placeholder="Ex: 3º A" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alunoResponsavel" class="form-label">Nome do Responsável *</label>
+                        <input type="text" id="alunoResponsavel" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alunoTelefone" class="form-label">Telefone do Responsável *</label>
+                        <input type="tel" id="alunoTelefone" class="form-input" placeholder="+55 81 99999-9999"
+                            required>
+                        <small class="form-text">Formato: +55 (DDD) 9XXXX-XXXX</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Código Portal</label>
+                        <div class="flex-gap">
+                            <input type="text" id="alunoCodigoPortal" class="form-input form-input-readonly"
+                                maxlength="6" placeholder="000000" readonly>
+                            <button type="button" class="btn btn-secondary" onclick="gerarCodigoPortal()">
+                                <i class="fas fa-sync-alt"></i>
+                                Gerar
+                            </button>
+                        </div>
+                        <small class="form-text">Código de 6 dígitos para consulta no portal do responsável</small>
+                    </div>
+
+                    <div class="form-group flex-end mt-2">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <i class="fas fa-save"></i>
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Importação -->
+    <div class="modal modal-wide" id="importacaoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-file-import"></i>
+                    Importar Alunos via Excel
+                </h3>
+                <button class="modal-close" onclick="closeModalImportacao()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="center-actions">
+                    <button class="btn btn-success btn-download-large" onclick="baixarTemplateExcel()">
+                        <i class="fas fa-file-excel"></i>
+                        Baixar Template Excel (.xlsx)
+                    </button>
+                </div>
+
+                <div class="alert alert-info alert-instructions">
+                    <h4>
+                        <i class="fas fa-info-circle"></i> Como usar o template:
+                    </h4>
+                    <ol>
+                        <li><strong>Baixe o template</strong> clicando no botão acima</li>
+                        <li><strong>Preencha os dados</strong> seguindo o exemplo abaixo</li>
+                        <li><strong>Não altere os cabeçalhos</strong> da primeira linha</li>
+                        <li><strong>Salve o arquivo</strong> e faça o upload aqui</li>
+                    </ol>
+                </div>
+
+                <div class="alert alert-warning alert-bordered mt-2">
+                    <h5>
+                        <i class="fas fa-exclamation-triangle"></i> Regras Importantes:
+                    </h5>
+                    <div class="rules-grid">
+                        <div class="rule-item">
+                            <i class="fas fa-calendar-check"></i>
+                            <div>
+                                <strong>Data de nascimento:</strong>
+                                <p>Use o formato <code>DD-MM-AAAA</code> (exemplo: 15-03-2005)</p>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <i class="fas fa-phone-alt"></i>
+                            <div>
+                                <strong>Telefone:</strong>
+                                <p>Inclua DDD e parênteses (exemplo: (81) 99999-9999)</p>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <i class="fas fa-id-badge"></i>
+                            <div>
+                                <strong>Matrícula:</strong>
+                                <p>Deve ser única para cada aluno</p>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <i class="fas fa-users-class"></i>
+                            <div>
+                                <strong>Turma:</strong>
+                                <p>Deve incluir série e letra (exemplo: 3º A)</p>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <i class="fas fa-file-alt"></i>
+                            <div>
+                                <strong>Cabeçalhos:</strong>
+                                <p>Não altere os cabeçalhos da primeira linha</p>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Campos obrigatórios:</strong>
+                                <p>Todos os campos são obrigatórios</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="importacaoForm">
+                    <div class="form-group">
+                        <label for="arquivoImportacao">
+                            <i class="fas fa-file-excel"></i>
+                            Selecione o arquivo:
+                        </label>
+                        <input type="file" id="arquivoImportacao" accept=".xlsx" required>
+                        <small class="helper-text">
+                            <i class="fas fa-info-circle"></i> Apenas arquivos Excel (.xlsx) são aceitos
+                        </small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModalImportacao()">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-upload"></i>
+                            Importar Alunos
+                        </button>
+                    </div>
+                </form>
+
+                <div id="importacaoProgress" style="display: none; margin-top: 1rem;">
+                    <div class="progress">
+                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <p id="importacaoStatus">Preparando importação...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Balão com descrição completa (hover na descrição no modal de notificações) -->
+    <div id="descricaoTooltip" class="descricao-tooltip" aria-hidden="true"></div>
+
+    <!-- Modal de Notificações do Aluno -->
+    <div class="modal" id="notificacoesAlunoModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3 id="notificacoesModalTitle">
+                    <i class="fas fa-bell"></i>
+                    Notificações do Aluno
+                </h3>
+                <button class="modal-close" onclick="closeModalNotificacoes()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="notificacoesAlunoInfo" style="margin-bottom: 2rem;"></div>
+                <div id="notificacoesAlunoLista"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../src/js/supabase-config.js"></script>
+    <!-- xlsx-js-style: API compatível com SheetJS, expõe XLSX e suporta estilo (primeira linha azul) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <script src="../src/js/supabase-global.js"></script>
+    <script src="../src/js/auth-nav.js"></script>
+    <script src="../src/js/alunos.js"></script>
+</body>
+
+</html>

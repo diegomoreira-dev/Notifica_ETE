@@ -1,0 +1,155 @@
+/* ================================================
+   NOTIFICA ETE - Estilos da Página Inicial
+   ================================================ */
+
+/* Banner de erro de auth (link convite/senha expirado) */
+.auth-error-banner {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    padding: 1.25rem 1.5rem;
+}
+.auth-error-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1rem;
+}
+.auth-error-content > i {
+    font-size: 2rem;
+    color: #dc2626;
+    flex-shrink: 0;
+}
+.auth-error-content strong {
+    display: block;
+    color: #991b1b;
+    margin-bottom: 0.25rem;
+}
+.auth-error-content p {
+    margin: 0;
+    color: #7f1d1d;
+    font-size: 0.95rem;
+}
+.auth-error-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+.auth-error-actions .btn-outline {
+    background: transparent;
+    border: 1px solid #94a3b8;
+    color: #64748b;
+}
+.auth-error-actions .btn-outline:hover {
+    background: #f1f5f9;
+}
+
+/* Grid de features */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+/* Headers dos cards com gradiente */
+.features-grid .card:nth-child(1) .card-header{
+    background:linear-gradient(135deg,#0A2A59 0%,#1E3A8A 100%);color:#fff;
+}
+
+.features-grid .card:nth-child(2) .card-header{
+    background:linear-gradient(135deg,#7a0000 0%,#a31515 100%);color:#fff;
+}
+
+
+/* Listas de features */
+.features-grid .card-body ul {
+    list-style: none;
+    padding: 0;
+}
+
+.features-grid .card-body ul li {
+    padding: 0.5rem 0;
+}
+
+.features-grid .card-body ul li .fa-check {
+    color: #10b981;
+}
+
+/* Botões nos cards */
+.features-grid .card-body .btn {
+    margin-top: 1rem;
+}
+
+/* Card de Como Funciona */
+.card.como-funciona {
+    margin-top: 3rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Grid de passos */
+.passos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    text-align: center;
+}
+
+/* Ícones dos passos */
+.passo-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.passo-icon.step-1 {
+    color: var(--primary-dark);
+}
+
+.passo-icon.step-2 {
+    color: var(--danger-color);
+}
+
+.passo-icon.step-3 {
+    color: var(--warning-color);
+}
+
+.passo-icon.step-4 {
+    color: var(--success-color);
+}
+
+
+/* Card de Transparência */
+.card.transparencia {
+    margin-top: 2rem;
+    background: linear-gradient(135deg, #0A2A59, #1E3A8A);
+    color: white;
+    text-align: center;
+}
+
+.card.transparencia h3 {
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.card.transparencia p {
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Footer secundário */
+.footer p.footer-secondary {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    margin-top: 0.5rem;
+}
+
+.footer .fa-heart {
+    color: #ef4444;
+}
+

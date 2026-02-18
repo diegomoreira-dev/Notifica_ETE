@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifica ETE - Sistema de Notificações Disciplinares</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="stylesheet" href="src/styles/index.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="index.html"><img src="assets/images/logo_notificaETE.svg" alt="Notifica ETE" class="logo-img"></a>
+            </div>
+            <nav class="nav">
+                <a href="pages/login.html" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Área do Operador
+                </a>
+                <a href="pages/portal-responsavel.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Portal do Responsável
+                </a>
+            </nav>
+        </header>
+
+        <main class="main">
+            <!-- Mensagem quando link de convite/senha expira (Supabase redireciona para Site URL com erro no hash) -->
+            <div id="authErrorBanner" class="auth-error-banner" style="display: none;">
+                <div class="auth-error-content">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>Link inválido ou expirado</strong>
+                        <p id="authErrorText">O link do e-mail não é mais válido. Links de convite e de redefinição de senha expiram por segurança. Solicite um novo convite ao administrador ou use "Esqueci minha senha" na tela de login.</p>
+                    </div>
+                    <div class="auth-error-actions">
+                        <a href="pages/login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Ir para o login</a>
+                        <a href="pages/esqueci-senha.html" class="btn btn-secondary"><i class="fas fa-key"></i> Esqueci minha senha</a>
+                        <button type="button" class="btn btn-outline" onclick="document.getElementById('authErrorBanner').style.display='none'; location.hash='';">Fechar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="hero">
+                <h2>Sistema de Notificações Disciplinares</h2>
+                <p>Gestão completa e transparente de notificações escolares</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-shield"></i> Para Operadores</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Gestão completa de alunos</li>
+                            <li><i class="fas fa-check"></i> Registro de notificações</li>
+                            <li><i class="fas fa-check"></i> Geração automática de PDFs</li>
+                            <li><i class="fas fa-check"></i> Notificação via WhatsApp</li>
+                            <li><i class="fas fa-check"></i> Relatórios e exportações</li>
+                        </ul>
+                        <a href="pages/login.html" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Acessar Sistema
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-users"></i> Para Responsáveis</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Consulta sem login</li>
+                            <li><i class="fas fa-check"></i> Código portal de 6 dígitos</li>
+                            <li><i class="fas fa-check"></i> Histórico completo</li>
+                            <li><i class="fas fa-check"></i> Download de documentos</li>
+                            <li><i class="fas fa-check"></i> Acesso 24/7</li>
+                        </ul>
+                        <a href="pages/portal-responsavel.html" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            Consultar Notificações
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card como-funciona">
+                <div class="card-header">
+                    <h3><i class="fas fa-info-circle"></i> Como Funciona</h3>
+                </div>
+                <div class="card-body">
+                    <div class="passos-grid">
+                        <div>
+                            <div class="passo-icon step-1">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <h4>1. Registro</h4>
+                            <p>Operador registra a notificação com evidências</p>
+                        </div>
+                        <div>
+                            <div class="passo-icon step-2">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <h4>2. Geração</h4>
+                            <p>Sistema gera PDF automaticamente</p>
+                        </div>
+                        <div>
+                            <div class="passo-icon step-3">
+                                <i class="fas fa-whatsapp"></i>
+                            </div>
+                            <h4>3. Notificação</h4>
+                            <p>Responsável recebe via WhatsApp</p>
+                        </div>
+                        <div>
+                            <div class="passo-icon step-4">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h4>4. Resolução</h4>
+                            <p>Acompanhamento até resolução</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card transparencia">
+                <div class="card-body">
+                    <h3>
+                        <i class="fas fa-shield-alt"></i>
+                        Transparência e Segurança
+                    </h3>
+                    <p>
+                        Sistema desenvolvido para garantir transparência na gestão escolar e facilitar a comunicação entre escola e família.
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 Notifica ETE - Sistema de Notificações Disciplinares</p>
+        </footer>
+    </div>
+    <script>
+        (function() {
+            var hash = window.location.hash || '';
+            var params = new URLSearchParams(hash.replace(/^#/, ''));
+            var error = params.get('error');
+            var code = params.get('error_code');
+            var desc = params.get('error_description');
+            if (error === 'access_denied' && (code === 'otp_expired' || (desc && desc.indexOf('invalid') !== -1))) {
+                var banner = document.getElementById('authErrorBanner');
+                if (banner) {
+                    banner.style.display = 'block';
+                }
+            }
+        })();
+    </script>
+</body>
+</html>

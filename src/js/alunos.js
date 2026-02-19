@@ -1,16 +1,10 @@
-// ================================================
-// NOTIFICA ETE - Gestão de Alunos
-// ================================================
-
-// Usar API global
 const { auth, database, utils } = SupabaseAPI
 
-// Estado global
 let alunos = []
 let alunosFiltrados = []
 let editingId = null
 
-// Escape para atributo e conteúdo HTML (descrição no tooltip)
+// Evita que texto do usuário quebre o HTML ou o tooltip
 function escapeDescricaoAttr(str) {
     if (!str) return ''
     return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -22,7 +16,6 @@ function escapeHtml(str) {
     return div.innerHTML
 }
 
-// Verificar autenticação
 async function checkAuth() {
     const { session } = await auth.getSession()
     if (!session) {
@@ -32,7 +25,6 @@ async function checkAuth() {
     return true
 }
 
-// Carregar alunos
 async function loadAlunos() {
     try {
         console.log('🔄 Carregando alunos...')
@@ -57,7 +49,6 @@ async function loadAlunos() {
     }
 }
 
-// Popular filtro de turmas
 function populateTurmaFilter() {
     const turmas = [...new Set(alunos.map(a => a.turma).filter(Boolean))].sort()
     const select = document.getElementById('turmaFilter')
@@ -66,7 +57,6 @@ function populateTurmaFilter() {
         turmas.map(turma => `<option value="${turma}">${turma}</option>`).join('')
 }
 
-// Renderizar tabela de alunos
 function renderAlunos(data) {
     const tbody = document.getElementById('alunosTableBody')
     const totalEl = document.getElementById('totalAlunosExibidos')
@@ -134,7 +124,6 @@ function renderAlunos(data) {
     }
 }
 
-// Aplicar filtros
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase()
     const turmaFiltro = document.getElementById('turmaFilter').value
@@ -153,7 +142,6 @@ function applyFilters() {
     renderAlunos(alunosFiltrados)
 }
 
-// Abrir modal para novo aluno
 window.openModalNovo = function() {
     editingId = null
     document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Novo Aluno'
@@ -163,13 +151,11 @@ window.openModalNovo = function() {
     document.getElementById('alunoModal').classList.add('active')
 }
 
-// Gerar código portal
 window.gerarCodigoPortal = function() {
     const codigo = Math.floor(100000 + Math.random() * 900000).toString()
     document.getElementById('alunoCodigoPortal').value = codigo
 }
 
-// Editar aluno
 window.editarAluno = async function(id) {
     try {
         const aluno = alunos.find(a => a.id === id)
@@ -196,7 +182,6 @@ window.editarAluno = async function(id) {
     }
 }
 
-// Deletar aluno
 window.deletarAluno = async function(id) {
     if (!confirm('Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.')) {
         return
@@ -214,7 +199,6 @@ window.deletarAluno = async function(id) {
     }
 }
 
-// Atualizar estado do botão "Excluir selecionados" e do "Selecionar todos"
 function updateExcluirSelecionadosState() {
     const checkboxes = document.querySelectorAll('.aluno-check:checked')
     const total = checkboxes.length
@@ -235,7 +219,6 @@ function updateExcluirSelecionadosState() {
     }
 }
 
-// Excluir em massa os alunos selecionados
 window.excluirSelecionados = async function() {
     const ids = [...document.querySelectorAll('.aluno-check:checked')].map(cb => cb.getAttribute('data-id'))
     if (!ids.length) return
@@ -277,17 +260,15 @@ window.excluirSelecionados = async function() {
     }
 }
 
-// Fechar modal
 window.closeModal = function() {
     document.getElementById('alunoModal').classList.remove('active')
 }
 
-// Fechar modal de notificações
 window.closeModalNotificacoes = function() {
     document.getElementById('notificacoesAlunoModal').classList.remove('active')
 }
 
-// Balão da descrição ao passar o mouse (modal Ver notificações do aluno)
+// Tooltip da descrição no modal de notificações do aluno
 let descricaoTooltipTimer = null
 function showDescricaoTooltip(el) {
     const tooltip = document.getElementById('descricaoTooltip')
@@ -340,20 +321,17 @@ function initDescricaoTooltip() {
     })
 }
 
-// Abrir modal de importação
 window.abrirModalImportacao = async function() {
     await loadAlunos()
     document.getElementById('importacaoModal').classList.add('active')
 }
 
-// Fechar modal de importação
 window.closeModalImportacao = function() {
     document.getElementById('importacaoModal').classList.remove('active')
     document.getElementById('importacaoForm').reset()
     document.getElementById('importacaoProgress').style.display = 'none'
 }
 
-// Baixar template Excel
 window.baixarTemplateExcel = function() {
     try {
         if (typeof XLSX === 'undefined') {
@@ -361,10 +339,8 @@ window.baixarTemplateExcel = function() {
             return
         }
 
-        // Criar workbook
         const wb = XLSX.utils.book_new()
-        
-        // Dados do template com datas no formato brasileiro
+        // Dados de exemplo no template 
         const templateData = [
             ['nome', 'data_nascimento', 'matricula', 'turma', 'responsavel', 'telefone_responsavel'],
             ['João Silva', '15-03-2005', '2024001', '3º A', 'Maria Silva', '(81) 99999-9999'],
@@ -372,10 +348,8 @@ window.baixarTemplateExcel = function() {
             ['Pedro Santos', '08-11-2007', '2024003', '1º C', 'Lucia Santos', '(81) 77777-7777']
         ]
         
-        // Criar worksheet
         const ws = XLSX.utils.aoa_to_sheet(templateData)
-
-        // Estilo da primeira linha (cabeçalho): fundo azul do sistema, texto branco
+        // Cabeçalho do Excel 
         const headerStyle = {
             fill: { patternType: 'solid', fgColor: { rgb: 'FF1E3A8A' }, bgColor: { rgb: 'FF1E3A8A' } },
             font: { bold: true, color: { rgb: 'FFFFFFFF' }, sz: 11 }
@@ -388,7 +362,6 @@ window.baixarTemplateExcel = function() {
             }
         }
         
-        // Ajustar largura das colunas
         ws['!cols'] = [
             { wch: 20 }, // nome
             { wch: 15 }, // data_nascimento
@@ -398,10 +371,7 @@ window.baixarTemplateExcel = function() {
             { wch: 18 }  // telefone_responsavel
         ]
         
-        // Adicionar worksheet ao workbook
         XLSX.utils.book_append_sheet(wb, ws, 'Alunos')
-        
-        // Download
         const nomeArquivo = `template_importacao_alunos_${new Date().toISOString().split('T')[0]}.xlsx`
         XLSX.writeFile(wb, nomeArquivo)
         
@@ -413,16 +383,13 @@ window.baixarTemplateExcel = function() {
     }
 }
 
-// Baixar template CSV
 window.baixarTemplateCSV = function() {
     try {
-        // Dados do template
         const csvContent = `nome,data_nascimento,matricula,turma,responsavel,telefone_responsavel
 João Silva,2005-03-15,2024001,3º A,Maria Silva,(81) 99999-9999
 Ana Costa,2006-07-22,2024002,2º B,José Costa,(81) 88888-8888
 Pedro Santos,2007-11-08,2024003,1º C,Lucia Santos,(81) 77777-7777`
         
-        // Criar blob e download
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
         const link = document.createElement('a')
         const url = URL.createObjectURL(blob)
@@ -443,17 +410,14 @@ Pedro Santos,2007-11-08,2024003,1º C,Lucia Santos,(81) 77777-7777`
     }
 }
 
-// Ver notificações do aluno
 window.verNotificacoesAluno = async function(alunoId) {
     try {
-        // Buscar dados do aluno
         const aluno = alunos.find(a => a.id === alunoId)
         if (!aluno) {
             utils.showNotification('Aluno não encontrado', 'error')
             return
         }
 
-        // Buscar notificações do aluno
         const { data: notifData, error } = await database.select('notificacoes', {
             select: '*',
             order: { column: 'data_hora', ascending: false }
@@ -463,13 +427,11 @@ window.verNotificacoesAluno = async function(alunoId) {
         
         const notificacoesAluno = notifData?.filter(n => n.aluno_id === alunoId) || []
 
-        // Atualizar título do modal
         document.getElementById('notificacoesModalTitle').innerHTML = `
             <i class="fas fa-bell"></i>
             Notificações de ${aluno.nome}
         `
 
-        // Informações do aluno
         const infoDiv = document.getElementById('notificacoesAlunoInfo')
         infoDiv.innerHTML = `
             <div class="grid-auto bg-light rounded-12 p-1">
@@ -485,7 +447,6 @@ window.verNotificacoesAluno = async function(alunoId) {
             </div>
         `
 
-        // Lista de notificações
         const listaDiv = document.getElementById('notificacoesAlunoLista')
         
         if (notificacoesAluno.length === 0) {
@@ -499,7 +460,6 @@ window.verNotificacoesAluno = async function(alunoId) {
         } else {
             try {
                 listaDiv.innerHTML = notificacoesAluno.map(notif => {
-                    // Normalizar nível para classe CSS (remover acentos)
                     let nivelClass = notif.nivel ? notif.nivel.toLowerCase() : 'leve'
                     nivelClass = nivelClass.replace(/á|à|â|ã|ä/g, 'a')
                     nivelClass = nivelClass.replace(/é|è|ê|ë/g, 'e')
@@ -541,7 +501,6 @@ window.verNotificacoesAluno = async function(alunoId) {
             }
         }
 
-        // Abrir modal
         document.getElementById('notificacoesAlunoModal').classList.add('active')
         
     } catch (error) {
@@ -550,7 +509,6 @@ window.verNotificacoesAluno = async function(alunoId) {
     }
 }
 
-// Funções auxiliares para importação
 function readFile(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
@@ -588,7 +546,7 @@ function parseExcel(arrayBuffer) {
 function isValidDate(dateString) {
     if (!dateString) return false
     
-    // Aceitar formato brasileiro DD-MM-AAAA ou formato ISO YYYY-MM-DD
+    // Aceita DD-MM-AAAA ou AAAA-MM-DD
     const formatoBrasileiro = /^\d{2}-\d{2}-\d{4}$/
     const formatoISO = /^\d{4}-\d{2}-\d{2}$/
     
@@ -596,7 +554,6 @@ function isValidDate(dateString) {
         return false
     }
     
-    // Converter formato brasileiro para ISO se necessário
     let dataISO = dateString
     if (formatoBrasileiro.test(dateString)) {
         const partes = dateString.split('-')
@@ -607,16 +564,13 @@ function isValidDate(dateString) {
     return date instanceof Date && !isNaN(date)
 }
 
-// Converter data para formato ISO (YYYY-MM-DD)
 function converterDataParaISO(dateString) {
     if (!dateString) return null
     
-    // Se já estiver no formato ISO, retornar como está
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
         return dateString
     }
     
-    // Se estiver no formato brasileiro DD-MM-AAAA, converter
     if (/^\d{2}-\d{2}-\d{4}$/.test(dateString)) {
         const partes = dateString.split('-')
         return `${partes[2]}-${partes[1]}-${partes[0]}`
@@ -629,7 +583,6 @@ function generatePortalCode() {
     return Math.floor(100000 + Math.random() * 900000).toString()
 }
 
-// Processar importação de alunos
 document.getElementById('importacaoForm').addEventListener('submit', async (e) => {
     e.preventDefault()
     
@@ -640,7 +593,6 @@ document.getElementById('importacaoForm').addEventListener('submit', async (e) =
     }
 
     try {
-        // Mostrar progresso
         const progressDiv = document.getElementById('importacaoProgress')
         const progressBar = document.getElementById('progressBar')
         const statusP = document.getElementById('importacaoStatus')
@@ -659,7 +611,6 @@ document.getElementById('importacaoForm').addEventListener('submit', async (e) =
         progressBar.style.width = '50%'
         statusP.textContent = `Encontrados ${alunosData.length} alunos...`
 
-        // Validar dados
         const alunosValidos = []
         const erros = []
 
@@ -667,7 +618,6 @@ document.getElementById('importacaoForm').addEventListener('submit', async (e) =
             const aluno = alunosData[i]
             const linha = i + 2 // +2 porque começa na linha 1 e pula cabeçalho
 
-            // Validar campos obrigatórios
             if (!aluno.nome) {
                 erros.push(`Linha ${linha}: Nome é obrigatório`)
                 continue
@@ -693,16 +643,14 @@ document.getElementById('importacaoForm').addEventListener('submit', async (e) =
                 continue
             }
 
-            // Validar formato da data
             if (!isValidDate(aluno.data_nascimento)) {
                 erros.push(`Linha ${linha}: Data inválida. Use formato DD-MM-AAAA (Excel) ou YYYY-MM-DD (CSV)`)
                 continue
             }
 
-            // Converter data para formato ISO antes de salvar
             aluno.data_nascimento = converterDataParaISO(aluno.data_nascimento)
 
-            // Gerar código portal único
+ único
             aluno.codigo_portal = generatePortalCode()
 
             alunosValidos.push(aluno)
@@ -711,7 +659,6 @@ document.getElementById('importacaoForm').addEventListener('submit', async (e) =
         progressBar.style.width = '70%'
         statusP.textContent = `Validados ${alunosValidos.length} alunos...`
 
-        // Mostrar erros se houver
         if (erros.length > 0) {
             const erroMsg = erros.slice(0, 5).join('\n') + (erros.length > 5 ? `\n... e mais ${erros.length - 5} erros` : '')
             utils.showNotification(`Erros encontrados:\n${erroMsg}`, 'error')
@@ -719,7 +666,7 @@ document.getElementById('importacaoForm').addEventListener('submit', async (e) =
             return
         }
 
-        // Verificação: alunos já cadastrados (por matrícula)
+        // Evita duplicar matrícula
         const matriculasExistentes = new Set((alunos || []).map(a => String(a.matricula || '').trim()))
         const duplicados = alunosValidos.filter(a => matriculasExistentes.has(String(a.matricula || '').trim()))
         let alunosAImportar = alunosValidos
@@ -743,7 +690,6 @@ document.getElementById('importacaoForm').addEventListener('submit', async (e) =
             }
         }
 
-        // Inserir no banco
         let sucessos = 0
         for (let i = 0; i < alunosAImportar.length; i++) {
             const aluno = alunosAImportar[i]
@@ -773,10 +719,9 @@ document.getElementById('importacaoForm').addEventListener('submit', async (e) =
             utils.showNotification(`${sucessos} alunos importados com sucesso!`, 'success')
         }
 
-        // Recarregar lista
         await loadAlunos()
         
-        // Fechar modal após 2 segundos
+ após 2 segundos
         setTimeout(() => {
             closeModalImportacao()
         }, 2000)
@@ -810,12 +755,10 @@ document.getElementById('alunoForm').addEventListener('submit', async (e) => {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...'
 
         if (editingId) {
-            // Atualizar
             const { error } = await database.update('alunos', editingId, dados)
             if (error) throw error
             utils.showNotification('Aluno atualizado com sucesso!', 'success')
         } else {
-            // Criar
             const { error } = await database.insert('alunos', dados)
             if (error) throw error
             utils.showNotification('Aluno cadastrado com sucesso!', 'success')
@@ -832,12 +775,10 @@ document.getElementById('alunoForm').addEventListener('submit', async (e) => {
     }
 })
 
-// Buscar alunos
 document.getElementById('searchInput').addEventListener('input', applyFilters)
 document.getElementById('turmaFilter').addEventListener('change', applyFilters)
 
 
-// Logout
 document.getElementById('logoutBtn').addEventListener('click', async (e) => {
     e.preventDefault()
     if (confirm('Deseja sair do sistema?')) {
@@ -846,10 +787,8 @@ document.getElementById('logoutBtn').addEventListener('click', async (e) => {
     }
 })
 
-// Inicializar
 document.addEventListener('DOMContentLoaded', async () => {
     initDescricaoTooltip()
-    // Selecionar todos / exclusão em massa: listeners uma vez
     const selectAll = document.getElementById('selectAllAlunos')
     if (selectAll) {
         selectAll.addEventListener('change', function () {

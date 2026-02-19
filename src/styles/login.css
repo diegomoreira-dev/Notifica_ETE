@@ -1,8 +1,3 @@
-/* ================================================
-   NOTIFICA ETE - Estilos da Página de Login
-   ================================================ */
-
-/* Background com imagem da escola */
 body {
     background-image: url('../../assets/images/background.png');
     background-size: cover;
@@ -12,7 +7,6 @@ body {
     position: relative;
 }
 
-/* Overlay semi-transparente sobre o background */
 body::before {
     content: '';
     position: fixed;
@@ -25,13 +19,11 @@ body::before {
     z-index: -1;
 }
 
-/* Container principal */
 .container {
     position: relative;
     z-index: 1;
 }
 
-/* Card de login */
 .login-container .card {
     max-width: 450px;
     width: 100%;
@@ -40,7 +32,6 @@ body::before {
     background: rgba(255, 255, 255, 0.95) !important;
 }
 
-/* Header do card de login */
 .login-container .card-header {
     background: linear-gradient(135deg, #0A2A59 0%, #1E3A8A 100%);
     color: white;
@@ -57,7 +48,6 @@ body::before {
     opacity: 0.9;
 }
 
-/* Container de login */
 .login-container {
     min-height: 60vh;
     display: flex;
@@ -66,7 +56,6 @@ body::before {
     padding: 2rem;
 }
 
-/* Password input wrapper */
 .password-input-wrapper {
     position: relative;
     display: flex;
@@ -99,7 +88,6 @@ body::before {
     font-size: 18px;
 }
 
-/* Forgot password */
 .forgot-password-container {
     text-align: right;
     margin-top: -0.5rem;
@@ -119,7 +107,6 @@ body::before {
     text-decoration: underline;
 }
 
-/* Spinner de loading */
 .loading-spinner {
     display: inline-block;
     width: 16px;
@@ -134,7 +121,6 @@ body::before {
     to { transform: rotate(360deg); }
 }
 
-/* Notificações toast */
 .notification {
     position: fixed;
     top: 20px;

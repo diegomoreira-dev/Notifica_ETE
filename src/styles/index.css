@@ -1,8 +1,3 @@
-/* ================================================
-   NOTIFICA ETE - Estilos da Página Inicial
-   ================================================ */
-
-/* Banner de erro de auth (link convite/senha expirado) */
 .auth-error-banner {
     background: #fef2f2;
     border: 1px solid #fecaca;
@@ -47,7 +42,6 @@
     background: #f1f5f9;
 }
 
-/* Grid de features */
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -55,7 +49,6 @@
     margin-top: 3rem;
 }
 
-/* Headers dos cards com gradiente */
 .features-grid .card:nth-child(1) .card-header{
     background:linear-gradient(135deg,#0A2A59 0%,#1E3A8A 100%);color:#fff;
 }
@@ -65,7 +58,6 @@
 }
 
 
-/* Listas de features */
 .features-grid .card-body ul {
     list-style: none;
     padding: 0;
@@ -79,12 +71,10 @@
     color: #10b981;
 }
 
-/* Botões nos cards */
 .features-grid .card-body .btn {
     margin-top: 1rem;
 }
 
-/* Card de Como Funciona */
 .card.como-funciona {
     margin-top: 3rem;
     max-width: 800px;
@@ -92,7 +82,6 @@
     margin-right: auto;
 }
 
-/* Grid de passos */
 .passos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -100,7 +89,6 @@
     text-align: center;
 }
 
-/* Ícones dos passos */
 .passo-icon {
     font-size: 3rem;
     margin-bottom: 1rem;
@@ -123,7 +111,6 @@
 }
 
 
-/* Card de Transparência */
 .card.transparencia {
     margin-top: 2rem;
     background: linear-gradient(135deg, #0A2A59, #1E3A8A);
@@ -142,7 +129,6 @@
     margin: 0 auto;
 }
 
-/* Footer secundário */
 .footer p.footer-secondary {
     font-size: 0.875rem;
     opacity: 0.8;

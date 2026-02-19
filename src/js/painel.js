@@ -1,11 +1,5 @@
-// ================================================
-// NOTIFICA ETE - Painel/Dashboard
-// ================================================
-
-// Usar API global
 const { auth, database, utils } = SupabaseAPI
 
-// Verificar autenticação
 async function checkAuth() {
     try {
         console.log('🔐 Verificando autenticação...')
@@ -19,7 +13,6 @@ async function checkAuth() {
         
         console.log('✅ Autenticado:', session.user.email)
         
-        // Obter display name do usuário
         let displayName = session.user.email
         if (session.user.user_metadata) {
             displayName = session.user.user_metadata.full_name || 
@@ -28,7 +21,6 @@ async function checkAuth() {
                          session.user.email
         }
         
-        // Atualizar mensagem de boas-vindas
         const welcomeMsg = document.getElementById('welcomeMessage')
         if (welcomeMsg) {
             welcomeMsg.textContent = `Bem-vindo, ${displayName}`
@@ -42,12 +34,10 @@ async function checkAuth() {
     }
 }
 
-// Carregar dados do painel
 async function loadDashboardData() {
     try {
         console.log('🔄 Carregando dados do painel...')
         
-        // Carregar estatísticas em paralelo
         const [alunosResult, notificacoesResult] = await Promise.all([
             database.select('alunos', { select: 'id' }),
             database.select('notificacoes', { select: 'id, nivel, status' })
@@ -61,18 +51,15 @@ async function loadDashboardData() {
             notificacoes: notificacoes.length 
         })
 
-        // Atualizar contadores
         document.getElementById('totalAlunos').textContent = alunos.length
         document.getElementById('totalNotificacoes').textContent = notificacoes.length
         
-        // Contar por status
         const pendentes = notificacoes.filter(n => n.status === 'pendente').length
         const resolvidas = notificacoes.filter(n => n.status === 'resolvido').length
         
         document.getElementById('notificacoesPendentes').textContent = pendentes
         document.getElementById('notificacoesResolvidas').textContent = resolvidas
 
-        // Contar por nível
         const leves = notificacoes.filter(n => n.nivel === 'Leve').length
         const medias = notificacoes.filter(n => n.nivel === 'Média').length
         const graves = notificacoes.filter(n => n.nivel === 'Grave').length
@@ -81,7 +68,6 @@ async function loadDashboardData() {
         document.getElementById('notificacoesMedias').textContent = medias
         document.getElementById('notificacoesGraves').textContent = graves
 
-        // Carregar outras seções
         await Promise.all([
             loadAlertas(),
             loadNotificacoesRecentes()
@@ -95,7 +81,6 @@ async function loadDashboardData() {
     }
 }
 
-// Carregar alertas (alunos com 3+ notificações ativas ou pendentes)
 async function loadAlertas() {
     try {
         const { data: notifData } = await database.select('notificacoes', {
@@ -157,7 +142,6 @@ async function loadAlertas() {
     }
 }
 
-// Escape para atributo HTML (descrição no tooltip)
 function escapeDescricaoAttr(str) {
     if (!str) return ''
     return String(str)
@@ -167,7 +151,6 @@ function escapeDescricaoAttr(str) {
         .replace(/>/g, '&gt;')
 }
 
-// Escape para conteúdo HTML
 function escapeHtml(str) {
     if (!str) return ''
     const div = document.createElement('div')
@@ -175,7 +158,6 @@ function escapeHtml(str) {
     return div.innerHTML
 }
 
-// Carregar notificações recentes
 async function loadNotificacoesRecentes() {
     try {
         const { data, error } = await database.select('notificacoes', {
@@ -304,7 +286,6 @@ function initDescricaoTooltip() {
     })
 }
 
-// Configurar logout
 function setupLogout() {
     const logoutBtn = document.getElementById('logoutBtn')
     if (logoutBtn) {
@@ -331,21 +312,17 @@ function setupLogout() {
     }
 }
 
-// Inicializar página
 async function initPage() {
     try {
         console.log('🚀 Inicializando painel...')
         
-        // Verificar autenticação
         const isAuthenticated = await checkAuth()
         if (!isAuthenticated) return
 
-        // Configurar logout
         setupLogout()
 
         initDescricaoTooltip()
 
-        // Carregar dados
         await loadDashboardData()
 
         console.log('✅ Painel inicializado com sucesso!')
@@ -356,6 +333,5 @@ async function initPage() {
     }
 }
 
-// Inicializar quando a página carregar
 document.addEventListener('DOMContentLoaded', initPage)
 

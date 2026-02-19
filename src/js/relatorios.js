@@ -1,17 +1,10 @@
-// ================================================
-// NOTIFICA ETE - Relatórios
-// ================================================
-
-// Usar API global
 const { auth, database, utils } = SupabaseAPI
 
-// Estado global
 let dadosFiltrados = []
 let tipoRelatorioAtual = 'alunos'
 let turmas = []
 let usuarioLogado = null
 
-// Verificar autenticação
 async function checkAuth() {
     const { session } = await auth.getSession()
     if (!session) {
@@ -25,7 +18,6 @@ async function checkAuth() {
         id: session.user.id || 'N/A'
     }
     
-    // Tentar obter mais informações do usuário
     try {
         const { user } = await auth.getCurrentUser()
         if (user) {
@@ -39,7 +31,6 @@ async function checkAuth() {
     return true
 }
 
-// Carregar turmas para o filtro
 async function loadTurmas() {
     try {
         const { data, error } = await database.select('alunos', {

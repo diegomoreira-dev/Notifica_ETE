@@ -1,11 +1,5 @@
-/**
- * Script de build para Vercel (e outros hosts).
- * Gera src/js/supabase-config.js a partir das variáveis de ambiente
- * SUPABASE_URL e SUPABASE_ANON_KEY, para que as chaves não fiquem no repositório.
- *
- * Na Vercel: Defina essas variáveis em Project > Settings > Environment Variables.
- * Build command: npm run build
- */
+// Na hora do deploy (ex.: Vercel), monta o arquivo de config do Supabase a partir das variáveis de ambiente.
+// Assim as chaves não precisam ir no repositório. Defina SUPABASE_URL e SUPABASE_ANON_KEY no painel.
 
 const fs = require('fs')
 const path = require('path')
@@ -22,7 +16,7 @@ if (!url || !anonKey) {
   process.exit(0)
 }
 
-const content = `// Gerado em build (Vercel) – não edite manualmente
+const content = `// Gerado no deploy – não editar
 window.__SUPABASE_CONFIG__ = {
   url: ${JSON.stringify(url)},
   anonKey: ${JSON.stringify(anonKey)}

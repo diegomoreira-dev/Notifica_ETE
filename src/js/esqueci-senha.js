@@ -1,7 +1,3 @@
-// ================================================
-// NOTIFICA ETE - Esqueci minha senha
-// ================================================
-
 const { auth, utils } = SupabaseAPI
 
 document.getElementById('esqueciSenhaForm').addEventListener('submit', async (e) => {

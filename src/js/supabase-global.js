@@ -1,37 +1,21 @@
-// ================================================
-// NOTIFICA ETE - Cliente Supabase Global
-// Versão sem ES6 modules para compatibilidade
-// ================================================
-// SEGURANÇA: A chave usada aqui é a ANON (pública). Ela pode ficar no front-end.
-// A proteção dos dados é feita por RLS e autenticação no Supabase. Veja docs/SEGURANCA.md
-// Para não commitar a chave no repositório, use window.__SUPABASE_CONFIG__ (arquivo supabase-config.example.js).
+// Conexão com o Supabase. A chave usada é a anônima (pública); a proteção dos dados fica por conta do RLS no servidor.
+// Para não commitar a chave, use window.__SUPABASE_CONFIG__ (ver supabase-config.example.js).
 
 var _config = (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__) || {}
 const SUPABASE_URL = _config.url || ''
 const SUPABASE_ANON_KEY = _config.anonKey || ''
 
-// Criar cliente Supabase global
 const { createClient } = supabase
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-// Sessão: duração máxima para ambiente institucional (8h). Após isso exige novo login.
-// Opcional: em Supabase Dashboard > Auth > Settings reduza "JWT expiry" (ex.: 3600 = 1h) para reforçar.
+// Depois de 8 horas de uso, o usuário precisa fazer login de novo (ajuste no Dashboard do Supabase se quiser)
 const SESSION_STARTED_KEY = 'notifica_ete_session_started_at'
 const MAX_SESSION_AGE_MS = (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.maxSessionAgeMs) || (8 * 60 * 60 * 1000)
 
-// ================================================
-// API GLOBAL
-// ================================================
-
 const SupabaseAPI = {
-    // Cliente
     client: supabaseClient,
-    /** Base URL das Edge Functions (ex.: listar e convidar usuários) */
     functionsUrl: SUPABASE_URL + '/functions/v1',
 
-    // ================================================
-    // AUTENTICAÇÃO
-    // ================================================
     auth: {
         async login(email, password) {
             try {
@@ -59,7 +43,7 @@ const SupabaseAPI = {
             }
         },
 
-        /** Retorna a sessão atual. Se passou do tempo máximo (ex.: 8h), faz logout e retorna null. */
+        // Se passou do tempo máximo de sessão, desloga e retorna null
         async getSession() {
             try {
                 const { data: { session }, error } = await supabaseClient.auth.getSession()
@@ -91,7 +75,6 @@ const SupabaseAPI = {
             return !!session
         },
 
-        /** Retorna true se o usuário atual tem role 'admin' (app_metadata.role). Definir no Dashboard do Supabase ou via Admin API. */
         async isAdmin() {
             try {
                 const { user } = await this.getCurrentUser()
@@ -138,7 +121,6 @@ const SupabaseAPI = {
             }
         },
 
-        /** Enviar email para redefinição de senha. redirectTo deve ser a URL da página de redefinir senha. */
         async resetPasswordForEmail(email, redirectTo) {
             try {
                 const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
@@ -153,34 +135,23 @@ const SupabaseAPI = {
         }
     },
 
-    // ================================================
-    // BANCO DE DADOS
-    // ================================================
     database: {
         async select(table, options = {}) {
             try {
                 let query = supabaseClient.from(table).select(options.select || '*')
-                
-                // Aplicar filtros
                 if (options.where) {
                     Object.entries(options.where).forEach(([key, value]) => {
                         query = query.eq(key, value)
                     })
                 }
-                
-                // Aplicar ordenação
                 if (options.order) {
                     query = query.order(options.order.column, { 
                         ascending: options.order.ascending !== false 
                     })
                 }
-                
-                // Aplicar limite
                 if (options.limit) {
                     query = query.limit(options.limit)
                 }
-                
-                // Retornar único registro
                 if (options.single) {
                     query = query.single()
                 }
@@ -417,10 +388,5 @@ const SupabaseAPI = {
     }
 }
 
-// Tornar disponível globalmente
 window.SupabaseAPI = SupabaseAPI
 window.supabaseClient = supabaseClient
-
-console.log('✅ Supabase API Global carregada')
-console.log('📡 URL:', SUPABASE_URL)
-console.log('🔧 Use: SupabaseAPI.auth, SupabaseAPI.database, SupabaseAPI.storage, SupabaseAPI.utils')

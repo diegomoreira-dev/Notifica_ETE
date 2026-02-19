@@ -1,7 +1,3 @@
-// ================================================
-// NOTIFICA ETE - Definir senha (primeiro login)
-// ================================================
-
 const { auth, utils } = SupabaseAPI
 
 async function checkAuth() {

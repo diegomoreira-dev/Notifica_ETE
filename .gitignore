@@ -12,6 +12,7 @@ yarn-error.log*
 .env.production.local
 
 # Não versionar: exemplos, scripts com dados pessoais e docs locais
+DOCUMENTACAO_JS.md
 exemplo_importacao_alunos.csv
 script_supabase_completo- diegomoreira.pab@outlook.com.sql
 scripts/seed_dados_ficticios.sql

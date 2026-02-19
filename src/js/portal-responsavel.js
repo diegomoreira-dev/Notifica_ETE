@@ -1,15 +1,8 @@
-// ================================================
-// NOTIFICA ETE - Portal do Responsável
-// ================================================
-
 const { database, utils } = SupabaseAPI
 
-// Consultar por código portal
 async function consultar(codigoPortal) {
     try {
         console.log('🔍 Consultando código:', codigoPortal)
-        
-        // Buscar aluno
         const { data: aluno, error: alunoError } = await database.select('alunos', {
             select: '*'
         })
@@ -27,7 +20,6 @@ async function consultar(codigoPortal) {
         
         console.log('✅ Aluno encontrado:', alunoEncontrado)
 
-        // Buscar notificações do aluno
         const { data: notificacoes, error: notifError } = await database.select('notificacoes', {
             select: '*',
             order: { column: 'data_hora', ascending: false }

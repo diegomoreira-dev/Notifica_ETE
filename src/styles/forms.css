@@ -1,8 +1,3 @@
-/* ================================================
-   NOTIFICA ETE - Estilos de Formulários e Páginas
-   ================================================ */
-
-/* Layout flex comum */
 .form-layout {
     display: flex;
     gap: 1rem;
@@ -10,14 +5,12 @@
     flex-wrap: wrap;
 }
 
-/* Grid de formulário 2 colunas */
 .form-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
 
-/* Ações de formulário */
 .form-actions {
     display: flex;
     gap: 1rem;
@@ -25,7 +18,6 @@
     margin-top: 2rem;
 }
 
-/* Progress bar */
 .progress {
     width: 100%;
     height: 8px;
@@ -40,7 +32,6 @@
     transition: width 0.3s ease;
 }
 
-/* Inputs com tamanhos específicos */
 .input-flex-1 {
     flex: 1;
     min-width: 200px;
@@ -58,19 +49,16 @@
     min-width: 200px;
 }
 
-/* Container de overflow */
 .table-overflow {
     overflow-x: auto;
 }
 
-/* Background específicos */
 .bg-info-light {
     background: #f8f9fa;
     padding: 1rem;
     border-radius: 4px;
 }
 
-/* Códigos e monospace */
 code {
     font-family: monospace;
     background: #f8f9fa;
@@ -78,20 +66,17 @@ code {
     border-radius: 3px;
 }
 
-/* Listas sem estilo */
 .list-unstyled {
     list-style: none;
     padding: 0;
 }
 
-/* Ações de botões em linha */
 .btn-actions {
     display: flex;
     gap: 0.25rem;
     flex-wrap: wrap;
 }
 
-/* Textarea para WhatsApp */
 #whatsappMessage {
     width: 100%;
     font-family: Arial, sans-serif;
@@ -99,12 +84,10 @@ code {
     line-height: 1.4;
 }
 
-/* Inputs readonly */
 input[readonly] {
     background: #f8fafc !important;
 }
 
-/* Badge info */
 .badge.badge-info {
     background: #dbeafe;
     color: #1e40af;
@@ -115,7 +98,6 @@ input[readonly] {
     color: #92400e;
 }
 
-/* Alertas com flex */
 .alert.alert-flex {
     display: flex;
     justify-content: space-between;
@@ -123,7 +105,6 @@ input[readonly] {
     margin-bottom: 1rem;
 }
 
-/* Card header com background específico */
 .card-header.bg-gradient-purple {
     background: linear-gradient(135deg, #0A2A59, #1E3A8A);
     color: white;
@@ -134,17 +115,14 @@ input[readonly] {
     color: white;
 }
 
-/* Notificações recentes */
 .recent-penalties .card-body {
     min-height: 200px;
 }
 
-/* Loading padded */
 .loading-padded {
     padding: 2rem;
 }
 
-/* Text colors */
 .text-muted {
     color: #64748b;
 }
@@ -153,7 +131,6 @@ input[readonly] {
     color: white;
 }
 
-/* Small text */
 .small-text,
 small,
 .form-text {

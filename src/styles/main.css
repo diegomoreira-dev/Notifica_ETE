@@ -1,4 +1,3 @@
-/* Reset e configurações base */
 * {
     margin: 0;
     padding: 0;
@@ -29,14 +28,12 @@ body {
     background-color: var(--light-color);
 }
 
-/* Layout principal */
 .container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-/* Header */
 .header {
     background: white;
     box-shadow: var(--shadow);
@@ -74,13 +71,11 @@ body {
     color: var(--primary-color);
 }
 
-/* Main content */
 .main {
     flex: 1;
     padding: 2rem;
 }
 
-/* Hero section */
 .hero {
     text-align: center;
     margin-bottom: 3rem;
@@ -109,7 +104,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* Features */
 .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -147,7 +141,6 @@ body {
     color: var(--secondary-color);
 }
 
-/* Botões */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -203,7 +196,6 @@ body {
     font-size: 0.875rem;
 }
 
-/* Cards */
 .card {
     background: white;
     border-radius: var(--border-radius);
@@ -228,7 +220,6 @@ body {
     background-color: var(--light-color);
 }
 
-/* Formulários */
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -270,7 +261,6 @@ body {
     margin-top: 0.25rem;
 }
 
-/* Tabelas */
 .table-container {
     overflow-x: auto;
     margin-bottom: 1rem;
@@ -302,7 +292,6 @@ body {
     background-color: var(--light-color);
 }
 
-/* Badges */
 .badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
@@ -343,7 +332,6 @@ body {
     color: #3730a3;
 }
 
-/* Alertas */
 .alert {
     padding: 1rem;
     border-radius: var(--border-radius);
@@ -375,7 +363,6 @@ body {
     color: #1e40af;
 }
 
-/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -427,7 +414,6 @@ body {
     justify-content: flex-end;
 }
 
-/* Loading */
 .loading {
     display: inline-block;
     width: 20px;
@@ -442,7 +428,6 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
     .header {
         padding: 1rem;
@@ -501,7 +486,6 @@ body {
     }
 }
 
-/* Utilitários */
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
@@ -534,7 +518,6 @@ body {
 .w-100 { width: 100%; }
 .h-100 { height: 100%; }
 
-/* Footer */
 .footer {
     background: var(--dark-color);
     color: white;
@@ -543,7 +526,6 @@ body {
     margin-top: auto;
 }
 
-/* Timeline */
 .timeline {
     position: relative;
     padding-left: 2rem;
@@ -585,7 +567,6 @@ body {
     box-shadow: var(--shadow);
 }
 
-/* Upload area */
 .upload-area {
     border: 2px dashed var(--border-color);
     border-radius: var(--border-radius);
@@ -607,7 +588,6 @@ body {
     margin-bottom: 1rem;
 }
 
-/* File preview */
 .file-preview {
     display: flex;
     align-items: center;
@@ -633,7 +613,6 @@ body {
     padding: 0.25rem;
 }
 
-/* Signature canvas */
 .signature-canvas {
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
@@ -641,7 +620,6 @@ body {
     background: white;
 }
 
-/* WhatsApp button */
 .whatsapp-btn {
     background-color: #25d366;
     color: white;
@@ -662,7 +640,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Status indicators */
 .status-indicator {
     display: inline-block;
     width: 8px;

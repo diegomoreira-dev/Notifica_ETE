@@ -1,225 +1,105 @@
-# 🎓 NOTIFICA ETE - Sistema de Notificações Disciplinares
+# 🎓 Notifica ETE – Sistema de Notificações Disciplinares
 
-Sistema completo de gestão de notificações disciplinares para Escolas Técnicas Estaduais, com integração WhatsApp Web, geração de PDF e portal para responsáveis.
-
----
-
-## 🚀 **Funcionalidades**
-
-### **Para Operadores:**
-- 🔐 **Autenticação** - Login seguro com Supabase
-- 📊 **Dashboard** - Estatísticas e alertas em tempo real
-- 👥 **Gestão de Alunos** - CRUD completo + importação Excel
-- 🔔 **Gestão de Notificações** - CRUD completo com níveis (Leve, Média, Grave)
-- 📱 **WhatsApp** - Envio de mensagens com modal de conferência
-- 📄 **PDF** - Geração automática
-- 📤 **Relátorios** - Excel e Pdf de relárotios de alunos e notificações
-- 🔍 **Filtros** - Busca por turma, nível, status
-
-### **Para Responsáveis:**
-- 🌐 **Portal Público** - Consulta sem login
-- 🔑 **Código Portal** - Acesso com 6 dígitos
-- 📋 **Histórico Completo** - Timeline de notificações
-- 📊 **Estatísticas** - Total, pendentes, resolvidas
+Sistema para gestão de notificações disciplinares em Escolas: login seguro, cadastro de alunos, registro de notificações por nível (Leve, Média, Grave), envio de mensagem pelo WhatsApp Web, geração de PDF e portal em que o responsável consulta o histórico com um código de 6 dígitos.
 
 ---
 
-## 🛠️ **Tecnologias Utilizadas**
+## 🚀 O que o sistema faz
 
-- **Frontend:** HTML5, CSS3, JavaScript (ES6+)
-- **Backend:** Supabase (PostgreSQL + Auth)
-- **Bibliotecas:**
-  - Supabase JS (autenticação e banco de dados)
-  - jsPDF (geração de PDF)
-  - SheetJS/XLSX (importação Excel)
-  - Font Awesome (ícones)
+### Para quem usa no dia a dia (operadores)
+- 🔐 **Login** com e-mail e senha.
+- 📊 **Painel** com totais de alunos e notificações, contagem por nível e por status, alertas e lista de notificações recentes.
+- 👥 **Alunos** – Cadastro, edição, exclusão e lista com filtros. Importação em lote por planilha (Excel). Código de 6 dígitos para o portal do responsável.
+- 🔔 **Notificações** – Cadastro e edição com nível (Leve, Média, Grave), descrição, status e vínculo ao aluno. Filtros por turma, nível, status e datas.
+- 📱 **WhatsApp** – Botão que monta a mensagem e abre o WhatsApp Web para envio, com opção de conferir e editar antes.
+- 📄 **PDF** – Geração de PDF da notificação com dados do aluno e da ocorrência.
+- 📤 **Relatórios** – Relatórios de alunos, de notificações e consolidado, com filtros e exportação em PDF e Excel.
+- 👤 **Perfil** – Alteração de nome de exibição e de senha.
+- 👥 **Gestão de usuários** (Admin) – Listar usuários, convidar por e-mail, definir papel (admin/operador) e excluir.
 
----
-
-## 📁 **Estrutura do Projeto**
-
-```
-PROJ_ PENALIDADES/
-├── index.html                    # Página inicial
-├── pages/                        # Páginas do sistema
-│   ├── login.html               # Autenticação
-│   ├── painel.html              # Dashboard
-│   ├── alunos.html              # Gestão de alunos
-│   ├── notificacoes.html        # Gestão de notificações
-│   └── portal-responsavel.html  # Portal público
-├── src/
-│   ├── js/                      # JavaScript modular
-│   │   ├── supabase-global.js  # API global do Supabase
-│   │   ├── login.js            # Lógica de login
-│   │   ├── painel.js           # Lógica do dashboard
-│   │   ├── alunos.js           # Lógica de alunos
-│   │   ├── notificacoes.js     # Lógica de notificações
-│   │   └── portal-responsavel.js # Lógica do portal
-│   └── styles/                  # CSS
-│       ├── main.css            # Estilos principais
-│       └── dashboard.css       # Estilos do dashboard
-├── assets/                      # Imagens e uploads
-├── script_supabase.sql         # Script de banco de dados
-├── exemplo_importacao_alunos.csv # Exemplo para importação
-└── README.md                    # Este arquivo
-```
+### Para o responsável
+- 🌐 **Portal** – Página pública: o responsável digita o código de 6 dígitos e vê os dados do aluno e a timeline de notificações, sem precisar de login.
 
 ---
 
-## ⚙️ **Configuração**
+## 🛠️ Tecnologias e bibliotecas
 
-### **1. Configurar Supabase:**
+- **Frontend:** HTML5, CSS3 e JavaScript (sem framework).
+- **Backend e auth:** [Supabase](https://supabase.com) (PostgreSQL + Autenticação). As chamadas são feitas pelo cliente Supabase JS.
+- **Bibliotecas usadas no navegador:**
+  - **Supabase JS** – Conexão com o projeto, autenticação e acesso às tabelas.
+  - **Font Awesome 6** – Ícones.
+  - **jsPDF** – Geração de PDF (notificações e relatórios).
+  - **SheetJS (XLSX)** – Leitura/escrita de Excel (importação de alunos, relatórios em Excel).
 
-1. Crie um projeto no [Supabase](https://supabase.com)
-2. Execute o script `script_supabase.sql` no SQL Editor
-3. Configure as credenciais: use `src/js/supabase-config.example.js` → copie para `supabase-config.js` e preencha URL e anon key (veja `docs/SEGURANCA.md`). Para publicar no **GitHub** e fazer deploy na **Vercel**, siga `docs/VERCEL_GITHUB.md`.
-
-### **2. Criar Usuário Operador:**
-
-No Supabase Authentication, crie um usuário:
-- Email: `operador@escola.com`
-- Senha: `sua-senha-segura`
-
-### **3. Executar o Sistema:**
-
-```bash
-# Opção 1: Servidor local simples
-python -m http.server 8000
-
-# Opção 2: Live Server (VS Code)
-# Clique com botão direito em index.html > Open with Live Server
-
-# Opção 3: Deploy (Vercel/Netlify)
-# Conecte o repositório e faça deploy
-```
 
 ---
 
-## 📊 **Estrutura do Banco de Dados**
+## 📁 Estrutura geral
 
-### **Tabela: alunos**
-- `id` - UUID (PK)
-- `nome` - VARCHAR
-- `data_nascimento` - DATE
-- `matricula` - VARCHAR
-- `turma` - VARCHAR
-- `responsavel` - VARCHAR
-- `telefone_responsavel` - VARCHAR
-- `codigo_portal` - VARCHAR(6) - Código único para consulta
+- **index.html** – Página inicial (links para área do operador e portal do responsável).
+- **pages/** – Páginas do sistema: login, painel, alunos, notificações, relatórios, perfil, gestão de usuários, portal do responsável, definir senha, redefinir senha e esqueci senha.
+- **src/js/** – Scripts por página (login, painel, alunos, notificações, relatórios, perfil, gestão de usuários, portal, auth, etc.) e o arquivo que configura a API global do Supabase.
+- **src/styles/** – Estilos (principal, painel, formulários, componentes, utilitários, login, portal, etc.).
+- **assets/** – Imagens (logo, favicon, fundo, timbre quando houver).
+- **scripts/** – Script de build usado no deploy (gera o arquivo de configuração do Supabase a partir de variáveis de ambiente).
+- **vercel.json** – Configuração de deploy (headers, diretório de saída).
 
-### **Tabela: notificacoes**
-- `id` - UUID (PK)
-- `aluno_id` - UUID (FK → alunos)
-- `data_hora` - TIMESTAMP
-- `nivel` - VARCHAR (Leve, Média, Grave)
-- `descricao` - TEXT
-- `status` - VARCHAR (ativo, pendente, resolvido)
-- `registrado_por` - VARCHAR
+O banco é configurado no Supabase a partir de um script SQL (tabelas `alunos` e `notificacoes`, políticas RLS, etc.).
 
 ---
 
-## 📱 **Funcionalidades Especiais**
+## ⚙️ Como configurar e rodar
 
-### **Importação de Alunos:**
-- Suporte para Excel (.xlsx) e CSV
-- Validação automática de dados
-- Barra de progresso em tempo real
-- Relatório de erros detalhado
+### 1. Supabase
+- Crie um projeto no [Supabase](https://supabase.com).
+- Execute no SQL Editor o script que cria as tabelas, RLS e o que mais seu projeto usar.
+- Na área do projeto, em **Authentication**, crie pelo menos um usuário (e-mail e senha) para testar o login.
+- Para o sistema conectar ao projeto, é necessário informar a **URL do projeto** e a **chave anônima (anon)** em algum ponto da aplicação (por exemplo um arquivo de configuração que não vai para o repositório, ou variáveis de ambiente no deploy). O build da Vercel pode gerar esse arquivo a partir de variáveis de ambiente.
 
-### **WhatsApp:**
-- Modal de conferência antes de enviar
-- Mensagem editável
-- Formatação profissional
-- Inclui código portal para consulta
+### 2. Rodar localmente
+- Sirva a pasta do projeto com um servidor estático (por exemplo `npx serve .` ou a extensão Live Server no VS Code) e abra `index.html`.
+- Garanta que a aplicação está recebendo a URL e a chave anônima do Supabase (por configuração local ou pelo mesmo mecanismo do deploy).
 
-### **PDF:**
-- Geração automática
-- 3 assinaturas (Aluno, Notificador, Responsável)
-- Layout profissional
-- Dados completos do aluno e notificação
-
-### **Portal do Responsável:**
-- Acesso sem login
-- Código de 6 dígitos
-- Timeline visual
-- Estatísticas
+### 3. Deploy (ex.: Vercel)
+- Conecte o repositório à Vercel e defina as variáveis de ambiente com a URL e a chave anônima do Supabase.
+- Use o comando de build que gera o arquivo de configuração (ex.: `npm run build`) e o diretório de saída configurado (ex.: raiz do projeto). O `vercel.json` já define headers e diretório de saída.
 
 ---
 
-## 🎯 **Fluxo de Uso**
+## 📊 Banco de dados (resumo)
 
-### **1. Cadastrar Alunos:**
-```
-Login → Alunos → Novo Aluno (ou Importar Excel) → Salvar
-```
+- **alunos** – id, nome, data_nascimento, matricula, turma, responsavel, telefone_responsavel, codigo_portal (código único de 6 dígitos para o portal).
+- **notificacoes** – id, aluno_id (FK), data_hora, nivel (Leve/Média/Grave), descricao, status (ativo/pendente/resolvido), registrado_por.
 
-### **2. Registrar Notificação:**
-```
-Login → Notificações → Nova Notificação → Preencher → Salvar
-```
-
-### **3. Enviar WhatsApp:**
-```
-Notificações → Botão Verde → Conferir/Editar → Enviar
-```
-
-### **4. Gerar PDF:**
-```
-Notificações → Botão Azul → PDF baixa automaticamente
-```
-
-### **5. Consultar (Responsável):**
-```
-Portal → Digitar Código → Ver Histórico
-```
+A segurança dos dados é garantida pelas políticas RLS no Supabase; no front é usada apenas a chave anônima.
 
 ---
 
-## 🔒 **Segurança**
+## 🔒 Segurança em poucas linhas
 
-- ✅ Autenticação com Supabase Auth
-- ✅ Row Level Security (RLS) no banco
-- ✅ Chave **anon** no front (pública por design); **service_role** só na Edge Function
-- ✅ Código JavaScript externo (CSP compatível)
-- ✅ Validação de dados no frontend e backend
-- ✅ Sem código inline (XSS protection)
+- Login e sessão via Supabase Auth; após um tempo de uso (ex.: 8 horas) o sistema pode exigir novo login.
+- Acesso aos dados controlado por RLS no Supabase; a chave que fica no front é a **anon** (pública por design).
+- A chave **service_role** não é usada no front; quando existe função serverless (Edge Function) para gestão de usuários, só ela usa essa chave.
 
-**Ao publicar:** leia **`docs/SEGURANCA.md`** para entender as chaves do Supabase e como não commitar a chave no repositório (config opcional).
 
 ---
 
-## 📈 **Performance**
+## 🎯 Fluxo rápido de uso
 
-- ✅ Código JavaScript cacheável
-- ✅ Carregamento paralelo de scripts
-- ✅ HTMLs 65% menores
-- ✅ Queries otimizadas
-- ✅ Lazy loading de dados
-
----
-
-## 🎨 **Design**
-
-- ✅ Interface moderna e responsiva
-- ✅ Cores intuitivas por nível de notificação
-- ✅ Ícones Font Awesome
-- ✅ Animações suaves
-- ✅ Mobile-friendly
+1. **Alunos** – Fazer login → Alunos → Novo aluno ou importar planilha → Salvar.
+2. **Notificação** – Notificações → Nova notificação → Preencher aluno, nível, descrição, etc. → Salvar.
+3. **WhatsApp** – Na lista de notificações, usar o botão de WhatsApp → Conferir mensagem → Abrir no WhatsApp Web.
+4. **PDF** – Na notificação, usar o botão de PDF para baixar.
+5. **Relatórios** – Relatórios → Escolher tipo, filtros → Aplicar → Exportar PDF ou Excel.
+6. **Portal (responsável)** – Na página inicial, acessar o portal → Digitar o código de 6 dígitos → Ver histórico.
 
 ---
 
-## 📝 **Licença**
+## 📝 Licença e uso
 
-Este projeto foi desenvolvido para uso em Escolas Técnicas Estaduais.
-
----
-
-## 👨‍💻 **Suporte**
-
-Para dúvidas ou suporte, consulte a documentação ou entre em contato com a equipe de desenvolvimento.
+Projeto desenvolvido para uso em Escolas Técnicas Estaduais. Para dúvidas ou suporte, consulte a documentação do projeto ou a equipe de desenvolvimento.
 
 ---
 
 **Desenvolvido com ❤️ para Escolas Técnicas Estaduais**
-
-**Versão: 2.0 - Refatorado e Otimizado**

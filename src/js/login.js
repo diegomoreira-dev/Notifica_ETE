@@ -1,11 +1,5 @@
-// ================================================
-// NOTIFICA ETE - Login
-// ================================================
-
-// Usar API global
 const { auth, utils } = SupabaseAPI
 
-// Função para mostrar notificação
 function showNotification(message, type = 'success') {
     const notification = document.createElement('div')
     notification.className = `notification notification-${type}`
@@ -33,7 +27,6 @@ async function checkAuth() {
     }
 }
 
-// Fazer login
 async function handleLogin(e) {
     e.preventDefault()
     
@@ -42,7 +35,6 @@ async function handleLogin(e) {
     const loginBtn = document.getElementById('loginBtn')
     const btnText = document.getElementById('btnText')
     
-    // Validação básica
     if (!email || !password) {
         showNotification('Preencha todos os campos', 'error')
         return

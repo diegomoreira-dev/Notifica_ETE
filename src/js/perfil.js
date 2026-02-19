@@ -1,8 +1,3 @@
-// ================================================
-// NOTIFICA ETE - Perfil do Usuário
-// ================================================
-
-// Usar API global
 const { auth, utils } = SupabaseAPI
 
 // Verificar autenticação
@@ -15,7 +10,6 @@ async function checkAuth() {
     return true
 }
 
-// Carregar dados do usuário
 async function loadUserData() {
     try {
         const { user, error } = await auth.getCurrentUser()
@@ -26,7 +20,6 @@ async function loadUserData() {
             return
         }
 
-        // Preencher campos
         const emailInput = document.getElementById('userEmail')
         const displayNameInput = document.getElementById('userDisplayName')
         const userIdSpan = document.getElementById('userId')
@@ -38,7 +31,6 @@ async function loadUserData() {
         }
 
         if (displayNameInput) {
-            // Tentar obter nome de diferentes lugares
             const displayName = user.user_metadata?.full_name || 
                                user.user_metadata?.nome || 
                                user.user_metadata?.display_name || 

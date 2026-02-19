@@ -1,21 +1,14 @@
-// ================================================
-// NOTIFICA ETE - Gestão de Notificações
-// ================================================
-
-// Usar API global
 const { auth, database, utils } = SupabaseAPI
 
-// Estado global
 let notificacoes = []
 let notificacoesFiltradas = []
 let alunos = []
 let editingId = null
 
-// Função auxiliar para normalizar nível para classe CSS
+// Converte "Média" / "Grave" etc. para nome de classe (sem acento)
 function normalizarNivelParaClasse(nivel) {
-    if (!nivel) return 'leve' // fallback
+    if (!nivel) return 'leve'
     let normalized = nivel.toLowerCase()
-    // Remover acentos manualmente para compatibilidade
     normalized = normalized.replace(/á|à|â|ã|ä/g, 'a')
     normalized = normalized.replace(/é|è|ê|ë/g, 'e')
     normalized = normalized.replace(/í|ì|î|ï/g, 'i')
@@ -25,19 +18,14 @@ function normalizarNivelParaClasse(nivel) {
     return normalized
 }
 
-// Obter display name do usuário
 async function getUserDisplayName() {
     try {
         const { user } = await auth.getCurrentUser()
         if (!user) return null
-        
-        // Tentar obter nome de diferentes lugares nos metadados
         const displayName = user.user_metadata?.full_name || 
                            user.user_metadata?.nome || 
                            user.user_metadata?.display_name ||
                            null
-        
-        // Se não tiver display name, usar email como fallback
         return displayName || user.email || 'Operador'
     } catch (error) {
         console.error('Erro ao obter display name:', error)
@@ -45,15 +33,12 @@ async function getUserDisplayName() {
     }
 }
 
-// Verificar autenticação
 async function checkAuth() {
     const { session } = await auth.getSession()
     if (!session) {
         window.location.href = 'login.html'
         return false
     }
-    
-    // Preencher "Registrado Por" com display name do usuário
     const displayName = await getUserDisplayName()
     const registradoPorInput = document.getElementById('notificacaoRegistradoPor')
     if (registradoPorInput && displayName) {
@@ -63,7 +48,6 @@ async function checkAuth() {
     return true
 }
 
-// Escape para exibir texto no HTML
 function escapeHtml(str) {
     if (!str) return ''
     const div = document.createElement('div')
@@ -71,13 +55,11 @@ function escapeHtml(str) {
     return div.innerHTML
 }
 
-// Label do aluno para exibição no select com busca
 function getAlunoLabel(aluno) {
     if (!aluno) return ''
     return `${aluno.nome} - ${aluno.matricula} (${aluno.turma})`
 }
 
-// Filtrar alunos por texto (nome, matrícula ou turma)
 function filtrarAlunos(texto) {
     if (!texto || !texto.trim()) return alunos
     const t = texto.trim().toLowerCase()
@@ -88,7 +70,6 @@ function filtrarAlunos(texto) {
     )
 }
 
-// Renderizar opções do dropdown do select de alunos
 function renderAlunoDropdown(filterText) {
     const dropdown = document.getElementById('alunoSelectDropdown')
     const list = filtrarAlunos(filterText)
@@ -101,7 +82,6 @@ function renderAlunoDropdown(filterText) {
     dropdown.setAttribute('aria-hidden', 'false')
 }
 
-// Abrir/fechar dropdown do select de alunos
 function setAlunoDropdownOpen(open) {
     const container = document.getElementById('alunoSelectSearch')
     const dropdown = document.getElementById('alunoSelectDropdown')
@@ -115,7 +95,6 @@ function setAlunoDropdownOpen(open) {
     }
 }
 
-// Limpar seleção do aluno no modal
 function clearAlunoSelect() {
     const hidden = document.getElementById('notificacaoAluno')
     const search = document.getElementById('notificacaoAlunoSearch')
@@ -124,7 +103,6 @@ function clearAlunoSelect() {
     setAlunoDropdownOpen(false)
 }
 
-// Selecionar aluno no componente de busca
 function setAlunoSelectValue(alunoId, label) {
     const hidden = document.getElementById('notificacaoAluno')
     const search = document.getElementById('notificacaoAlunoSearch')
@@ -133,7 +111,6 @@ function setAlunoSelectValue(alunoId, label) {
     setAlunoDropdownOpen(false)
 }
 
-// Inicializar eventos do select de alunos com busca
 function initAlunoSearchSelect() {
     const searchInput = document.getElementById('notificacaoAlunoSearch')
     const dropdown = document.getElementById('alunoSelectDropdown')
@@ -179,7 +156,6 @@ function initAlunoSearchSelect() {
     })
 }
 
-// Carregar alunos para o select com busca
 async function loadAlunos() {
     try {
         const { data, error } = await database.select('alunos', {
@@ -196,7 +172,6 @@ async function loadAlunos() {
     }
 }
 
-// Carregar notificações
 async function loadNotificacoes() {
     try {
         console.log('🔄 Carregando notificações...')
@@ -232,7 +207,6 @@ async function loadNotificacoes() {
     }
 }
 
-// Renderizar tabela de notificações
 function renderNotificacoes(data) {
     const tbody = document.getElementById('notificacoesTableBody')
     const totalEl = document.getElementById('totalNotificacoesExibidas')
@@ -295,7 +269,6 @@ function renderNotificacoes(data) {
     }
 }
 
-// Aplicar filtros
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase()
     const nivelFiltro = document.getElementById('nivelFilter').value
@@ -315,7 +288,6 @@ function applyFilters() {
     renderNotificacoes(notificacoesFiltradas)
 }
 
-// Abrir modal para nova notificação
 window.openModalNovo = async function() {
     editingId = null
     document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Nova Notificação'
@@ -341,7 +313,6 @@ window.openModalNovo = async function() {
     document.getElementById('notificacaoModal').classList.add('active')
 }
 
-// Editar notificação
 window.editarNotificacao = async function(id) {
     try {
         const notif = notificacoes.find(n => n.id === id)
@@ -376,7 +347,6 @@ window.editarNotificacao = async function(id) {
     }
 }
 
-// Deletar notificação
 window.deletarNotificacao = async function(id) {
     if (!confirm('Tem certeza que deseja excluir esta notificação? Esta ação não pode ser desfeita.')) {
         return
@@ -399,7 +369,6 @@ window.closeModal = function() {
     document.getElementById('notificacaoModal').classList.remove('active')
 }
 
-// Fechar modal WhatsApp
 window.closeModalWhatsApp = function() {
     document.getElementById('whatsappModal').classList.remove('active')
 }

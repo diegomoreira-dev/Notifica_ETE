@@ -1,10 +1,6 @@
-// ================================================
-// NOTIFICA ETE - Gestão de usuários (somente admin)
-// ================================================
-
 const { auth, utils } = SupabaseAPI
 
-/** Nome da Edge Function (GET listar, POST convite, PATCH editar, DELETE excluir). */
+// Endpoint que lista, convida, edita e remove usuários (só admin)
 const EDGE_FUNCTION_GESTAO = 'smart-service'
 
 let currentUserId = null
@@ -42,7 +38,7 @@ function formatDateTime(str) {
     })
 }
 
-/** Role de exibição: só usamos app_metadata.role (admin/operador). O user.role do Supabase é sempre "authenticated". */
+// Mostra Admin ou Operador; no Supabase o papel “de verdade” fica no app_metadata
 function getRoleLabel(user) {
     const role = user.app_metadata?.role
     if (role === 'admin') return 'Admin'

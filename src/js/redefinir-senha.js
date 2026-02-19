@@ -1,7 +1,3 @@
-// ================================================
-// NOTIFICA ETE - Redefinir senha (link do e-mail)
-// ================================================
-
 const { auth, utils } = SupabaseAPI
 
 const cardForm = document.getElementById('cardForm')

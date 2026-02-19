@@ -1,6 +1,3 @@
-// ================================================
-// NOTIFICA ETE - Mostrar link Gestão de usuários só para admin
-// ================================================
 ;(async function () {
     const link = document.getElementById('linkGestaoUsuarios')
     if (!link) return

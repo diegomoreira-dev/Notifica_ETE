@@ -1,9 +1,3 @@
-/* ================================================
-   NOTIFICA ETE - Estilos do Portal do Responsável
-   ================================================ */
-
-/* Hero do portal */
-
 .portal-hero {
     text-align: center;
     padding: 3rem 2rem;
@@ -29,13 +23,11 @@
     opacity: 0.9;
 }
 
-/* Card de consulta */
 .consulta-card {
     max-width: 600px;
     margin: 0 auto 2rem;
 }
 
-/* Input de código */
 .codigo-input {
     text-align: center;
     font-size: 2rem;
@@ -44,7 +36,6 @@
     text-transform: uppercase;
 }
 
-/* Resultado da consulta */
 #resultadoConsulta {
     display: none;
 }
@@ -53,7 +44,6 @@
     display: block;
 }
 
-/* Card de informações do aluno */
 .aluno-info-card {
     margin-bottom: 2rem;
 }
@@ -62,14 +52,12 @@
     color: white;
 }
 
-/* Grid de informações */
 .info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
 }
 
-/* Estatísticas no portal */
 .portal-stats {
     margin-bottom: 2rem;
 }
@@ -86,7 +74,6 @@
     background: linear-gradient(135deg, #10b981, #059669);
 }
 
-/* Timeline */
 .timeline {
     position: relative;
     padding-left: 2rem;
@@ -131,13 +118,11 @@
     border-color: #10b981;
 }
 
-/* Botão de nova consulta */
 .nova-consulta-container {
     text-align: center;
     margin-top: 2rem;
 }
 
-/* ========== Responsivo - tablets e mobile ========== */
 @media (max-width: 768px) {
     .portal-hero {
         padding: 2rem 1.25rem;

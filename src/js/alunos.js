@@ -309,15 +309,18 @@ function initDescricaoTooltip() {
     const tooltip = document.getElementById('descricaoTooltip')
     if (!tooltip) return
     document.addEventListener('mouseenter', (e) => {
-        const trigger = e.target.closest('.descricao-tooltip-trigger')
+        const el = e.target && e.target.nodeType === 1 ? e.target : null
+        const trigger = el && el.closest ? el.closest('.descricao-tooltip-trigger') : null
         if (trigger) showDescricaoTooltip(trigger)
     }, true)
     document.addEventListener('mouseleave', (e) => {
-        const trigger = e.target.closest('.descricao-tooltip-trigger')
+        const el = e.target && e.target.nodeType === 1 ? e.target : null
+        const trigger = el && el.closest ? el.closest('.descricao-tooltip-trigger') : null
         if (trigger && !tooltip.contains(e.relatedTarget)) hideDescricaoTooltip()
     }, true)
     tooltip.addEventListener('mouseleave', (e) => {
-        if (!e.relatedTarget || !e.relatedTarget.closest || !e.relatedTarget.closest('.descricao-tooltip-trigger')) hideDescricaoTooltip()
+        const related = e.relatedTarget && e.relatedTarget.nodeType === 1 ? e.relatedTarget : null
+        if (!related || !related.closest || !related.closest('.descricao-tooltip-trigger')) hideDescricaoTooltip()
     })
 }
 
@@ -649,8 +652,6 @@ document.getElementById('importacaoForm').addEventListener('submit', async (e) =
             }
 
             aluno.data_nascimento = converterDataParaISO(aluno.data_nascimento)
-
- único
             aluno.codigo_portal = generatePortalCode()
 
             alunosValidos.push(aluno)
@@ -720,8 +721,7 @@ document.getElementById('importacaoForm').addEventListener('submit', async (e) =
         }
 
         await loadAlunos()
-        
- após 2 segundos
+
         setTimeout(() => {
             closeModalImportacao()
         }, 2000)

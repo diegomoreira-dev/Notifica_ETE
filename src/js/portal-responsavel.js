@@ -1,56 +1,35 @@
-const { database, utils } = SupabaseAPI
+const { utils } = SupabaseAPI
 
+// ─── Consulta via RPC (função segura no banco) ────────────────────────────────
+// Usa a função consultar_portal() do Supabase (SECURITY DEFINER), que retorna
+// apenas o aluno correspondente ao código informado — nunca a tabela inteira.
 async function consultar(codigoPortal) {
     try {
         console.log('🔍 Consultando código:', codigoPortal)
-        const { data: aluno, error: alunoError } = await database.select('alunos', {
-            select: '*'
+
+        const { data, error } = await SupabaseAPI.client.rpc('consultar_portal', {
+            p_codigo_portal: codigoPortal
         })
 
-        if (alunoError) throw alunoError
+        if (error) throw error
 
-        const alunoEncontrado = aluno?.find(a => a.codigo_portal === codigoPortal)
-        
-        if (!alunoEncontrado) {
-            return { 
-                success: false, 
-                message: 'Código não encontrado. Verifique se digitou corretamente.' 
-            }
-        }
-        
-        console.log('✅ Aluno encontrado:', alunoEncontrado)
-
-        const { data: notificacoes, error: notifError } = await database.select('notificacoes', {
-            select: '*',
-            order: { column: 'data_hora', ascending: false }
-        })
-
-        if (notifError) throw notifError
-
-        const notificacoesAluno = notificacoes?.filter(n => n.aluno_id === alunoEncontrado.id) || []
-        
-        console.log('📋 Notificações encontradas:', notificacoesAluno.length)
-
-        return { 
-            success: true, 
-            aluno: alunoEncontrado, 
-            notificacoes: notificacoesAluno 
-        }
+        console.log('✅ Resultado da consulta:', data)
+        return data // já vem no formato { success, aluno?, notificacoes?, message? }
 
     } catch (error) {
         console.error('❌ Erro na consulta:', error)
-        return { 
-            success: false, 
-            message: 'Erro ao consultar. Tente novamente.' 
+        return {
+            success: false,
+            message: 'Erro ao consultar. Tente novamente.'
         }
     }
 }
 
-// Renderizar resultado
+// ─── Renderizar resultado ─────────────────────────────────────────────────────
 function renderResultado(aluno, notificacoes) {
     // Mostrar seção de resultado
     document.getElementById('resultadoConsulta').style.display = 'block'
-    
+
     // Scroll suave para o resultado
     document.getElementById('resultadoConsulta').scrollIntoView({ behavior: 'smooth' })
 
@@ -63,14 +42,14 @@ function renderResultado(aluno, notificacoes) {
     // Estatísticas
     const pendentes = notificacoes.filter(n => n.status === 'pendente').length
     const resolvidas = notificacoes.filter(n => n.status === 'resolvido').length
-    
+
     document.getElementById('totalNotificacoes').textContent = notificacoes.length
     document.getElementById('notificacoesPendentes').textContent = pendentes
     document.getElementById('notificacoesResolvidas').textContent = resolvidas
 
     // Timeline
     const timeline = document.getElementById('timelineNotificacoes')
-    
+
     if (notificacoes.length === 0) {
         timeline.innerHTML = `
             <div class="empty-state p-2">
@@ -106,9 +85,9 @@ function renderResultado(aluno, notificacoes) {
                 <div class="card-body">
                     <p class="mb-0-5"><strong>Descrição:</strong></p>
                     <p class="mb-1">${notif.descricao}</p>
-                    
+
                     <p class="mb-0-5"><strong>Registrado por:</strong> ${notif.registrado_por}</p>
-                    
+
                     ${notif.pdf_url ? `
                         <a href="${notif.pdf_url}" target="_blank" class="btn btn-sm btn-primary mt-1">
                             <i class="fas fa-file-pdf"></i>
@@ -122,7 +101,7 @@ function renderResultado(aluno, notificacoes) {
     }).join('')
 }
 
-// Nova consulta
+// ─── Nova consulta ────────────────────────────────────────────────────────────
 window.novaConsulta = function() {
     document.getElementById('resultadoConsulta').style.display = 'none'
     document.getElementById('codigoPortal').value = ''
@@ -130,12 +109,12 @@ window.novaConsulta = function() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-// Form submit
+// ─── Form submit ──────────────────────────────────────────────────────────────
 document.getElementById('consultaForm').addEventListener('submit', async (e) => {
     e.preventDefault()
-    
+
     const codigo = document.getElementById('codigoPortal').value.trim()
-    
+
     if (codigo.length !== 6) {
         alert('❌ O código deve ter exatamente 6 dígitos')
         return
@@ -143,13 +122,13 @@ document.getElementById('consultaForm').addEventListener('submit', async (e) => 
 
     const btn = e.target.querySelector('button[type="submit"]')
     const originalText = btn.innerHTML
-    
+
     btn.disabled = true
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando...'
 
     try {
         const resultado = await consultar(codigo)
-        
+
         if (resultado.success) {
             renderResultado(resultado.aluno, resultado.notificacoes)
         } else {
@@ -163,8 +142,7 @@ document.getElementById('consultaForm').addEventListener('submit', async (e) => 
     }
 })
 
-// Auto-focus no input
+// ─── Auto-focus no input ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('codigoPortal').focus()
 })
-

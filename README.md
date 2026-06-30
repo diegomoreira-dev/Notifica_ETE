@@ -66,7 +66,7 @@ Sistema para gestão de notificações disciplinares em Escolas: login seguro, c
 
 > ⚠️ O arquivo `src/js/supabase-config.js` **não é versionado** (está no `.gitignore`) porque carrega a URL e a chave anônima do projeto Supabase. Ele é gerado automaticamente no deploy pelo `scripts/build-vercel.js`, ou criado manualmente para rodar localmente — veja a seção abaixo.
 
-O banco é configurado no Supabase a partir de um script SQL próprio do projeto (tabelas `alunos` e `notificacoes`, políticas RLS etc.), que **não está incluído neste repositório** por conter dados de ambiente específicos. Veja a seção [Banco de dados](#-banco-de-dados-resumo) para a estrutura mínima necessária para recriá-lo.
+O banco é configurado no Supabase a partir do script [`schema.sql`](./schema.sql) (tabelas `alunos` e `notificacoes`, políticas RLS e a função `consultar_portal`). Veja a seção [Banco de dados](#-banco-de-dados-resumo) para detalhes.
 
 ---
 
@@ -78,7 +78,7 @@ O banco é configurado no Supabase a partir de um script SQL próprio do projeto
 
 ### 2. Criar o projeto no Supabase
 1. Crie um projeto em [supabase.com](https://supabase.com).
-2. No **SQL Editor**, crie as tabelas `alunos` e `notificacoes` (ver estrutura em [Banco de dados](#-banco-de-dados-resumo)) e configure as políticas de RLS.
+2. No **SQL Editor**, rode o conteúdo de [`schema.sql`](./schema.sql) — ele cria as tabelas `alunos` e `notificacoes`, habilita RLS, define as políticas de acesso para operadores autenticados e cria a função `consultar_portal`, usada pelo portal público.
 3. Em **Authentication → Users**, crie pelo menos um usuário (e-mail e senha) para testar o login.
 4. Em **Project Settings → API**, copie a **Project URL** e a chave **anon public** — você vai precisar delas no próximo passo.
 5. (Opcional, para a tela de Gestão de Usuários) publique a Edge Function responsável por convidar/gerenciar usuários, que é a única parte do sistema autorizada a usar a chave `service_role`.
@@ -126,12 +126,14 @@ Abra `index.html` (ou o endereço indicado pelo servidor) no navegador.
 
 ## 📊 Banco de dados (resumo)
 
-- **alunos** – `id`, `nome`, `data_nascimento`, `matricula`, `turma`, `responsavel`, `telefone_responsavel`, `codigo_portal` (código único de 6 dígitos para o portal).
-- **notificacoes** – `id`, `aluno_id` (FK → alunos), `data_hora`, `nivel` (Leve/Média/Grave), `descricao`, `status` (ativo/pendente/resolvido), `registrado_por`.
+- **alunos** – `id`, `nome`, `data_nascimento`, `matricula` (única), `turma`, `responsavel`, `telefone_responsavel`, `codigo_portal` (única, código de 6 dígitos para o portal), `codigo_aluno` (reservado, não usado pelo frontend atual).
+- **notificacoes** – `id`, `aluno_id` (FK → alunos), `nivel` (Leve/Média/Grave), `descricao`, `status` (pendente/enviada/visualizada/respondida/resolvido/ativo), `registrado_por`, `mensagem`, `whatsapp_enviado`, `whatsapp_data_envio`, `pdf_url`, `data_hora`.
+
+A estrutura completa, com constraints, índices e triggers de `updated_at`, está em [`schema.sql`](./schema.sql).
 
 A segurança dos dados é garantida pelas políticas RLS no Supabase; no front é usada apenas a chave anônima.
 
-> 💡 Se você reaproveitar este projeto, recomenda-se versionar um script `schema.sql` "limpo" (sem dados fictícios ou e-mails pessoais) na raiz ou em `/sql`, para que outros desenvolvedores consigam recriar o banco sem depender de um arquivo externo.
+> ⚠️ **Importante:** o portal do responsável é público (sem login), então a chave `anon` **não tem permissão de leitura direta** nas tabelas `alunos`/`notificacoes`. A consulta por código de 6 dígitos é feita através da função `consultar_portal(codigo)` (RPC), que roda como `SECURITY DEFINER` e retorna apenas os dados do aluno correspondente — nunca a tabela inteira. Isso evita que a chave anônima, que fica pública no JavaScript do navegador, possa ser usada para extrair o cadastro completo de alunos. Veja o comentário no final de `schema.sql` para o trecho de `supabase-js` que chama essa função a partir de `portal-responsavel.js`.
 
 ---
 

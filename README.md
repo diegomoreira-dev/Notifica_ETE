@@ -51,17 +51,23 @@ Sistema para gestão de notificações disciplinares em Escolas: login seguro, c
 
 ```
 .
-├── index.html              # Página inicial (links para área do operador e portal do responsável)
-├── pages/                  # Páginas: login, painel, alunos, notificações, relatórios,
-│                           #   perfil, gestão de usuários, portal, definir/redefinir/esqueci senha
+├── index.html                        # Página inicial (links para área do operador e portal do responsável)
+├── pages/                            # Páginas: login, painel, alunos, notificações, relatórios,
+│                                     #   perfil, gestão de usuários, portal, definir/redefinir/esqueci senha
 ├── src/
-│   ├── js/                 # Scripts por página + supabase-global.js (API global do Supabase)
-│   └── styles/             # Estilos (principal, painel, formulários, componentes, login, portal...)
-├── assets/                 # Imagens (logo, favicon, fundo)
+│   ├── js/                           # Scripts por página + supabase-global.js (API global do Supabase)
+│   └── styles/                       # Estilos (principal, painel, formulários, componentes, login, portal...)
+├── assets/                           # Imagens (logo, favicon, fundo)
+├── supabase/
+│   └── functions/
+│       └── smart-service/
+│           └── index.ts              # Edge Function de gestão de usuários (usa service_role no servidor)
 ├── scripts/
-│   └── build-vercel.js     # Gera src/js/supabase-config.js a partir das env vars no deploy
+│   └── build-vercel.js               # Gera src/js/supabase-config.js a partir das env vars no deploy
+├── schema.sql                        # Script completo do banco: tabelas, RLS, índices, função consultar_portal
 ├── package.json
-└── vercel.json              # Headers de segurança e config de deploy
+├── LICENSE
+└── vercel.json                       # Headers de segurança e config de deploy
 ```
 
 > ⚠️ O arquivo `src/js/supabase-config.js` **não é versionado** (está no `.gitignore`) porque carrega a URL e a chave anônima do projeto Supabase. Ele é gerado automaticamente no deploy pelo `scripts/build-vercel.js`, ou criado manualmente para rodar localmente — veja a seção abaixo.
@@ -81,7 +87,7 @@ O banco é configurado no Supabase a partir do script [`schema.sql`](./schema.sq
 2. No **SQL Editor**, rode o conteúdo de [`schema.sql`](./schema.sql) — ele cria as tabelas `alunos` e `notificacoes`, habilita RLS, define as políticas de acesso para operadores autenticados e cria a função `consultar_portal`, usada pelo portal público.
 3. Em **Authentication → Users**, crie pelo menos um usuário (e-mail e senha) para testar o login.
 4. Em **Project Settings → API**, copie a **Project URL** e a chave **anon public** — você vai precisar delas no próximo passo.
-5. (Opcional, para a tela de Gestão de Usuários) publique a Edge Function responsável por convidar/gerenciar usuários, que é a única parte do sistema autorizada a usar a chave `service_role`.
+5. (Opcional, para a tela de Gestão de Usuários) publique a Edge Function em `supabase/functions/smart-service/index.ts` — ela é a única parte do sistema autorizada a usar a chave `service_role`.
 
 ### 3. Rodar localmente
 
@@ -109,7 +115,7 @@ Depois, suba um servidor estático apontando para a raiz do projeto:
 ```bash
 npm start        # usa "npx serve ."
 # ou
-npm run dev       # usa "npx live-server --port=3000" com live reload
+npm run dev      # usa "npx live-server --port=3000" com live reload
 ```
 
 Abra `index.html` (ou o endereço indicado pelo servidor) no navegador.
@@ -133,7 +139,7 @@ A estrutura completa, com constraints, índices e triggers de `updated_at`, est�
 
 A segurança dos dados é garantida pelas políticas RLS no Supabase; no front é usada apenas a chave anônima.
 
-> ⚠️ **Importante:** o portal do responsável é público (sem login), então a chave `anon` **não tem permissão de leitura direta** nas tabelas `alunos`/`notificacoes`. A consulta por código de 6 dígitos é feita através da função `consultar_portal(codigo)` (RPC), que roda como `SECURITY DEFINER` e retorna apenas os dados do aluno correspondente — nunca a tabela inteira. Isso evita que a chave anônima, que fica pública no JavaScript do navegador, possa ser usada para extrair o cadastro completo de alunos. Veja o comentário no final de `schema.sql` para o trecho de `supabase-js` que chama essa função a partir de `portal-responsavel.js`.
+> ⚠️ **Importante:** o portal do responsável é público (sem login), então a chave `anon` **não tem permissão de leitura direta** nas tabelas `alunos`/`notificacoes`. A consulta por código de 6 dígitos é feita através da função `consultar_portal(codigo)` (RPC), que roda como `SECURITY DEFINER` e retorna apenas os dados do aluno correspondente — nunca a tabela inteira. Isso evita que a chave anônima, que fica pública no JavaScript do navegador, possa ser usada para extrair o cadastro completo de alunos.
 
 ---
 
@@ -141,7 +147,7 @@ A segurança dos dados é garantida pelas políticas RLS no Supabase; no front �
 
 - Login e sessão via Supabase Auth; após 8 horas de uso o sistema exige novo login (ajustável em `MAX_SESSION_AGE_MS`, em `src/js/supabase-global.js`).
 - Acesso aos dados controlado por RLS no Supabase; a chave que fica no front é a **anon** (pública por design).
-- A chave **service_role** nunca é usada no front; a Edge Function de gestão de usuários é o único ponto que a utiliza, do lado do servidor.
+- A chave **service_role** nunca é usada no front; a Edge Function `supabase/functions/smart-service/index.ts` é o único ponto que a utiliza, do lado do servidor.
 - `vercel.json` já aplica headers de segurança padrão (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, etc.) em todas as rotas.
 
 ---
@@ -159,4 +165,4 @@ A segurança dos dados é garantida pelas políticas RLS no Supabase; no front �
 
 ## 📝 Licença e uso
 
-Distribuído sob a licença **MIT** (ver `LICENSE`). Projeto desenvolvido no curso Técnico de Desenvolvimento de Sistemas da ETEGEC, para uso em Escolas. Para dúvidas ou suporte, abra uma [issue](https://github.com/diegomoreira-dev/Notifica_ETE/issues) no repositório.
+Distribuído sob a licença **MIT** (ver [`LICENSE`](./LICENSE)). Projeto desenvolvido no curso Técnico de Desenvolvimento de Sistemas da ETEGEC, para uso em Escolas. Para dúvidas ou suporte, abra uma [issue](https://github.com/diegomoreira-dev/Notifica_ETE/issues) no repositório.

@@ -18,7 +18,7 @@
     "html",
     "css"
   ],
-  "author": "DDV Technology",
+  "author": "DM Technology",
   "license": "MIT",
   "devDependencies": {
     "live-server": "^1.2.2",
